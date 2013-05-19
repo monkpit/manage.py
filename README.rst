@@ -26,7 +26,8 @@ Quickstart
         if capitalyze:
             text = text.upper()
         return text
-
+    
+    manager.main()
 
 ``manage --help``::
 
