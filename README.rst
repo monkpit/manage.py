@@ -96,3 +96,9 @@ Argument definition can be overridden
     @manager.command
     def my_command(first_arg):
         # ...
+
+
+Environment
+-----------
+
+Environment variables can be sourced from a ``.env`` file as ``key=value`` pair.
