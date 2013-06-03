@@ -153,6 +153,13 @@ class ManagerTest(unittest.TestCase):
         env = 'key="value"'
         self.assertEqual(manager.parse_env(env), dict(key='value'))
 
+    def test_parse_env_multiline(self):
+        new_manager = Manager()
+        env = """key="value"
+another_key=another value"""
+        self.assertEqual(manager.parse_env(env), dict(key='value',
+            another_key='another value'))
+
 
 if __name__ == '__main__':
     unittest.main()
