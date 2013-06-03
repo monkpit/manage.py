@@ -148,6 +148,11 @@ class ManagerTest(unittest.TestCase):
         env = "key='value'"
         self.assertEqual(manager.parse_env(env), dict(key='value'))
 
+    def test_parse_env_double_quote(self):
+        new_manager = Manager()
+        env = 'key="value"'
+        self.assertEqual(manager.parse_env(env), dict(key='value'))
+
 
 if __name__ == '__main__':
     unittest.main()
