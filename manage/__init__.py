@@ -2,6 +2,7 @@
 import argparse
 import sys
 import re
+import os
 import inspect
 
 from clint import args
@@ -162,6 +163,24 @@ class Manager(object):
         else:
             return register
 
+    def update_env(self):
+        path = os.path.join(os.getcwd(), '.env')
+        if os.path.isfile(path):
+            env = self.parse_env(open(path).read())
+            for key in env:
+                os.environ[key] = env[key]
+
+    def parse_env(self, content):
+        def strip_quotes(string):
+            for quote in "'", '"':
+                if string.startswith(quote) and string.endswith(quote):
+                    return string.strip(quote)
+            return string
+
+        regexp = re.compile('^([A-Za-z_0-9]+)=(.*)$', re.MULTILINE)
+        founds = re.findall(regexp, content)
+        return {key: strip_quotes(value) for key, value in founds}
+
     @property
     def parser(self):
         parser = argparse.ArgumentParser(
@@ -200,6 +219,7 @@ class Manager(object):
         except KeyError:
             puts(colored.red('Invalid command `%s`\n' % command))
             return self.usage()
+        self.update_env()
         command.parse(args.all[1:])
 
 
