@@ -138,6 +138,11 @@ class ManagerTest(unittest.TestCase):
         manager.merge(new_manager, namespace='new_namespace')
         self.assertIn('new_namespace.new_command', manager.commands)
 
+    def test_parse_env_simple(self):
+        new_manager = Manager()
+        env = "key=value"
+        self.assertEqual(manager.parse_env(env), dict(key='value'))
+
 
 if __name__ == '__main__':
     unittest.main()
