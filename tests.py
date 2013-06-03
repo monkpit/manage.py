@@ -4,7 +4,7 @@ import unittest
 
 from StringIO import StringIO
 
-from manage import Arg, Command, Manager
+from manager import Arg, Command, Manager
 
 
 manager = Manager()
