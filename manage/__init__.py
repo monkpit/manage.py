@@ -162,6 +162,17 @@ class Manager(object):
         else:
             return register
 
+    def parse_env(self, content):
+        def strip_quotes(string):
+            for quote in "'", '"':
+                if string.startswith(quote) and string.endswith(quote):
+                    return string.strip(quote)
+            return string
+
+        regexp = re.compile('^([A-Za-z_0-9]+)=(.*)$', re.MULTILINE)
+        founds = re.findall(regexp, content)
+        return {key: strip_quotes(value) for key, value in founds}
+
     @property
     def parser(self):
         parser = argparse.ArgumentParser(
