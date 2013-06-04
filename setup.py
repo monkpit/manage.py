@@ -14,7 +14,7 @@ setup(
     install_requires=['clint'],
     entry_points={
         'console_scripts': [
-            'manage = manage.main:main',
+            'manage = manager.main:main',
         ]
     },
     classifiers=[
