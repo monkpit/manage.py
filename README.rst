@@ -16,7 +16,7 @@ Quickstart
 
 .. code:: python
 
-    from manage import Manager
+    from manager import Manager
 
     manager = Manager()
 
