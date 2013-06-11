@@ -4,7 +4,7 @@ import unittest
 
 from StringIO import StringIO
 
-from manager import Arg, Command, Manager
+from manager import Arg, Command, Error, Manager
 
 
 manager = Manager()
@@ -40,6 +40,11 @@ def simple_command(name, capitalyze=False):
 def namespaced(name):
     """namespaced command"""
     return name
+
+
+@manager.command
+def raises():
+    raise Error('No way dude!')
 
 
 class ArgTest(unittest.TestCase):
@@ -97,6 +102,12 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(len(command.args), 1)
         self.assertEqual(command.args[0].help,
             'argument help')
+
+    def test_puts_error(self):
+        with capture() as c:
+            manager.commands['raises'].parse(list())
+
+        self.assertEqual(c.getvalue(), 'No way dude!\n')
 
 
 class ManagerTest(unittest.TestCase):
