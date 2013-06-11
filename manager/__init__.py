@@ -9,6 +9,10 @@ from clint import args
 from clint.textui import colored, puts, min_width, indent
 
 
+class Error(Exception):
+    pass
+
+
 class Command(object):
     name = None
     namespace = None
@@ -79,7 +83,11 @@ class Command(object):
             elif hasattr(parsed_args, arg_name):
                 kwargs[arg_name] = getattr(parsed_args, arg_name)
             position = position + 1
-        return self.puts(self.run(*args, **kwargs))
+        try:
+            r = self.run(*args, **kwargs)
+        except Error, e:
+            r = e
+        return self.puts(r)
 
     @property
     def parser(self):
@@ -104,6 +112,8 @@ class Command(object):
         elif type_ == dict:
             for key in r:
                 puts(min_width(colored.blue(key), 25) + r[key])
+        elif type_ == Error:
+            puts(colored.red(str(r)), stream=stdout)
         else:
             puts(str(r), stream=stdout)
 
