@@ -126,15 +126,15 @@ class Manager(object):
     def Command(self):
         manager = self
 
-        class BoundCommand(Command):
-            class __metaclass__(type):
-                def __new__(meta, name, bases, dict_):
-                    new = type.__new__(meta, name, bases, dict_)
-                    if name != 'BoundCommand':
-                        manager.add_command(new())
-                    return new
+        class BoundMeta(type):
+            def __new__(meta, name, bases, dict_):
+                new = type.__new__(meta, name, bases, dict_)
+                if name != 'BoundCommand':
+                    manager.add_command(new())
 
-        return BoundCommand
+                return new
+
+        return BoundMeta('BoundCommand', (Command, ), {})
 
     def add_command(self, command):
         self.commands[command.path] = command
