@@ -40,7 +40,7 @@ class Command(object):
     def inspect(self):
         self.arg_names, varargs, keywords, defaults = inspect.getargspec(
             self.run)
-        if hasattr(self.run, 'im_self'):
+        if hasattr(self.run, 'im_self') or hasattr(self.run, '__self__'):
             del self.arg_names[0]  # Removes `self` arg for class method
         if defaults is not None:
             kwargs = dict(zip(*[reversed(l) \
