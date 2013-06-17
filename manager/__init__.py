@@ -242,7 +242,8 @@ class Arg(object):
 
     def __init__(self, name, **kwargs):
         self.name = name
-        self._kwargs = dict(self.defaults.items() + kwargs.items())
+        self._kwargs = self.defaults.copy()
+        self._kwargs.update(kwargs)
 
     def __getattr__(self, key):
         return self._kwargs[key]
