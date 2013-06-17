@@ -3,6 +3,9 @@ manage.py
 
 Human friendly CLI builder.
 
+.. image:: https://drone.io/github.com/Birdback/manage.py/status.png
+    :target: https://drone.io/github.com/Birdback/manage.py
+
 Installation
 ------------
 
