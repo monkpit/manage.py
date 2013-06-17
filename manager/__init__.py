@@ -246,6 +246,8 @@ class Arg(object):
         self._kwargs.update(kwargs)
 
     def __getattr__(self, key):
+        if not key in self._kwargs:
+            raise AttributeError
         return self._kwargs[key]
 
     @property
