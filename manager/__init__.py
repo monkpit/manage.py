@@ -85,7 +85,7 @@ class Command(object):
             position = position + 1
         try:
             r = self.run(*args, **kwargs)
-        except Error, e:
+        except Error as e:
             r = e
         return self.puts(r)
 
@@ -226,7 +226,7 @@ class Manager(object):
         command = args.get(0)
         try:
             command = self.commands[command]
-        except KeyError:
+        except KeyError as e:
             puts(colored.red('Invalid command `%s`\n' % command))
             return self.usage()
         self.update_env()
