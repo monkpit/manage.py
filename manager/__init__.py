@@ -40,7 +40,7 @@ class Command(object):
     def inspect(self):
         self.arg_names, varargs, keywords, defaults = inspect.getargspec(
             self.run)
-        if hasattr(self.run, 'im_self'):
+        if hasattr(self.run, 'im_self') or hasattr(self.run, '__self__'):
             del self.arg_names[0]  # Removes `self` arg for class method
         if defaults is not None:
             kwargs = dict(zip(*[reversed(l) \
@@ -85,7 +85,7 @@ class Command(object):
             position = position + 1
         try:
             r = self.run(*args, **kwargs)
-        except Error, e:
+        except Error as e:
             r = e
         return self.puts(r)
 
@@ -126,15 +126,15 @@ class Manager(object):
     def Command(self):
         manager = self
 
-        class BoundCommand(Command):
-            class __metaclass__(type):
-                def __new__(meta, name, bases, dict_):
-                    new = type.__new__(meta, name, bases, dict_)
-                    if name != 'BoundCommand':
-                        manager.add_command(new())
-                    return new
+        class BoundMeta(type):
+            def __new__(meta, name, bases, dict_):
+                new = type.__new__(meta, name, bases, dict_)
+                if name != 'BoundCommand':
+                    manager.add_command(new())
 
-        return BoundCommand
+                return new
+
+        return BoundMeta('BoundCommand', (Command, ), {})
 
     def add_command(self, command):
         self.commands[command.path] = command
@@ -226,7 +226,7 @@ class Manager(object):
         command = args.get(0)
         try:
             command = self.commands[command]
-        except KeyError:
+        except KeyError as e:
             puts(colored.red('Invalid command `%s`\n' % command))
             return self.usage()
         self.update_env()
@@ -242,9 +242,12 @@ class Arg(object):
 
     def __init__(self, name, **kwargs):
         self.name = name
-        self._kwargs = dict(self.defaults.items() + kwargs.items())
+        self._kwargs = self.defaults.copy()
+        self._kwargs.update(kwargs)
 
     def __getattr__(self, key):
+        if not key in self._kwargs:
+            raise AttributeError
         return self._kwargs[key]
 
     @property
