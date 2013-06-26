@@ -111,6 +111,18 @@ class CommandTest(unittest.TestCase):
 
         self.assertEqual(c.getvalue(), 'No way dude!\n')
 
+    def test_puts_none(self):
+        with capture() as c:
+            Command().puts(None)
+
+        self.assertEqual(c.getvalue(), '')
+
+    def test_puts_empty(self):
+        with capture() as c:
+            Command().puts('')
+
+        self.assertEqual(c.getvalue(), '\n')
+
 
 class ManagerTest(unittest.TestCase):
     def test_command_decorator(self):

@@ -114,7 +114,7 @@ class Command(object):
                 puts(min_width(colored.blue(key), 25) + r[key])
         elif type_ == Error:
             puts(colored.red(str(r)), stream=stdout)
-        else:
+        elif r != None:
             puts(str(r), stream=stdout)
 
 
