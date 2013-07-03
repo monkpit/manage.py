@@ -29,7 +29,7 @@ Quickstart
         if capitalyze:
             text = text.upper()
         return text
-    
+
     if __name__ == '__main__':
         manager.main()
 
