@@ -96,7 +96,7 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(manager.commands['my_namespace.namespaced'].path,
             'my_namespace.namespaced')
 
-    def test_had_argument(self):
+    def test_add_argument(self):
         command = Command(run=lambda new_argument: new_argument)
         self.assertEqual(len(command.args), 1)
         arg = Arg('new_argument', help='argument help')
