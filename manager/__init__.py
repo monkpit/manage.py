@@ -18,6 +18,7 @@ class Command(object):
     namespace = None
     description = 'no description'
     run = None
+    capture_all = False
 
     def __init__(self, **kwargs):
         for key in kwargs:
@@ -32,7 +33,8 @@ class Command(object):
             self.name = re.sub('(.)([A-Z]{1})', r'\1_\2',
                 self.__class__.__name__).lower()
 
-        self.inspect()
+        if not self.capture_all:
+            self.inspect()
 
     def __call__(self, *args, **kwargs):
         return self.run(*args, **kwargs)
@@ -73,16 +75,19 @@ class Command(object):
         raise NotImplementedError
 
     def parse(self, args):
-        parsed_args = self.parser.parse_args(args)
-        args, kwargs = [], {}
-        position = 0
-        for arg_name in self.arg_names:
-            arg = self.args[position]
-            if arg.required:
-                args.append(getattr(parsed_args, arg_name))
-            elif hasattr(parsed_args, arg_name):
-                kwargs[arg_name] = getattr(parsed_args, arg_name)
-            position = position + 1
+        if self.capture_all:
+            args, kwargs = [args], {}
+        else:
+            parsed_args = self.parser.parse_args(args)
+            args, kwargs = [], {}
+            position = 0
+            for arg_name in self.arg_names:
+                arg = self.args[position]
+                if arg.required:
+                    args.append(getattr(parsed_args, arg_name))
+                elif hasattr(parsed_args, arg_name):
+                    kwargs[arg_name] = getattr(parsed_args, arg_name)
+                position = position + 1
         try:
             r = self.run(*args, **kwargs)
         except Error as e:

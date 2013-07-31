@@ -123,6 +123,10 @@ class CommandTest(unittest.TestCase):
 
         self.assertEqual(c.getvalue(), '\n')
 
+    def test_capture_all(self):
+        command = Command(run=lambda argv: argv, capture_all=True)
+        self.assertEqual(len(command.args), 0)
+
 
 class ManagerTest(unittest.TestCase):
     def test_command_decorator(self):
