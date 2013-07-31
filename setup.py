@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='manage.py',
-    version='0.1b6',
+    version='0.1',
     description='Human friendly CLI builder',
     long_description='',
     author='jean-philippe serafin',
@@ -18,7 +18,7 @@ setup(
         ]
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
