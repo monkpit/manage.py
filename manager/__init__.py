@@ -17,14 +17,14 @@ def puts(r):
     stdout = sys.stdout.write
     type_ = type(r)
     if type_ == list:
-        [clint_puts(i, stream=stdout) for i in r]
+        [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
-            clint_puts(min_width(colored.blue(key), 25) + r[key])
+            puts(min_width(colored.blue(key), 25) + r[key])
     elif type_ == Error:
-        clint_puts(colored.red(str(r)), stream=stdout)
+        puts(colored.red(str(r)))
     elif r is not None:
-        clint_puts(str(r), stream=stdout)
+        clint_puts(str(r).strip('\n'), stream=stdout)
 
 
 class Command(object):

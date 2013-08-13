@@ -123,6 +123,12 @@ class CommandTest(unittest.TestCase):
 
         self.assertEqual(c.getvalue(), '\n')
 
+    def test_puts_list_strip_carriage_returns(self):
+        with capture() as c:
+            puts(['first line\n', 'second line\n'])
+
+        self.assertEqual(len(c.getvalue().splitlines()), 2)
+
     def test_capture_all(self):
         command = Command(run=lambda argv: argv, capture_all=True)
         self.assertEqual(len(command.args), 0)
