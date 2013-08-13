@@ -2,7 +2,6 @@
 import argparse
 import collections
 import functools
-import nose
 import sys
 import re
 import os
@@ -131,7 +130,6 @@ class Manager(object):
         self.commands = {}
         self.env_vars = collections.defaultdict(dict)
         self.command(self.list_env)
-        self.command(self.test, capture_all=True)
 
     @property
     def Command(self):
@@ -287,18 +285,6 @@ class Manager(object):
                 default = '(%s)' % default if default is not None else ''
                 puts('\t%s%s' % (min_width(var.upper(), 30), default))
             puts('')
-
-    @nose.tools.nottest
-    def test(self, argv):
-        """Run nosetests."""
-        argv = [''] + argv
-        all_ = '--all-modules'
-        if not all_ in argv:
-            argv.append(all_)
-        log_level = '--logging-level'
-        if not log_level in argv:
-            argv = argv + ['--logging-level', 'WARN']
-        nose.core.run_exit(argv=argv)
 
 
 class Arg(object):
