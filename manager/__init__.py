@@ -6,11 +6,25 @@ import os
 import inspect
 
 from clint import args
-from clint.textui import colored, puts, min_width, indent
+from clint.textui import colored, puts as clint_puts, min_width, indent
 
 
 class Error(Exception):
     pass
+
+
+def puts(r):
+    stdout = sys.stdout.write
+    type_ = type(r)
+    if type_ == list:
+        [clint_puts(i, stream=stdout) for i in r]
+    elif type_ == dict:
+        for key in r:
+            clint_puts(min_width(colored.blue(key), 25) + r[key])
+    elif type_ == Error:
+        clint_puts(colored.red(str(r)), stream=stdout)
+    elif r is not None:
+        clint_puts(str(r), stream=stdout)
 
 
 class Command(object):
@@ -92,7 +106,7 @@ class Command(object):
             r = self.run(*args, **kwargs)
         except Error as e:
             r = e
-        return self.puts(r)
+        return puts(r)
 
     @property
     def parser(self):
@@ -108,19 +122,6 @@ class Command(object):
     def path(self):
         return self.name if self.namespace is None else '%s.%s' % \
             (self.namespace, self.name)
-
-    def puts(self, r):
-        stdout = sys.stdout.write
-        type_ = type(r)
-        if type_ == list:
-            [puts(i, stream=stdout) for i in r]
-        elif type_ == dict:
-            for key in r:
-                puts(min_width(colored.blue(key), 25) + r[key])
-        elif type_ == Error:
-            puts(colored.red(str(r)), stream=stdout)
-        elif r is not None:
-            puts(str(r), stream=stdout)
 
 
 class Manager(object):

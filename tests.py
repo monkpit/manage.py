@@ -6,7 +6,7 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-from manager import Arg, Command, Error, Manager
+from manager import Arg, Command, Error, Manager, puts
 
 
 manager = Manager()
@@ -113,13 +113,13 @@ class CommandTest(unittest.TestCase):
 
     def test_puts_none(self):
         with capture() as c:
-            Command().puts(None)
+            puts(None)
 
         self.assertEqual(c.getvalue(), '')
 
     def test_puts_empty(self):
         with capture() as c:
-            Command().puts('')
+            puts('')
 
         self.assertEqual(c.getvalue(), '\n')
 
