@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import unittest
 
@@ -194,6 +195,21 @@ class ManagerTest(unittest.TestCase):
 another_key=another value"""
         self.assertEqual(manager.parse_env(env), dict(key='value',
             another_key='another value'))
+
+    def test_env(self):
+        new_manager = Manager()
+        @new_manager.env('REQUIRED')
+        @new_manager.env('OPTIONAL', value='bar')
+        def throwaway(required=None, optional=None):
+            return required, optional
+        self.assertEqual(len(new_manager.env_vars['throwaway']), 2)
+        if 'REQURIED' in os.environ:
+            del os.environ['REQUIRED']
+        self.assertRaises(KeyError, throwaway)
+        os.environ['REQUIRED'] = 'foo'
+        req, opt = throwaway()
+        self.assertEqual(req, 'foo')
+        self.assertEqual(opt, 'bar')
 
 
 if __name__ == '__main__':
