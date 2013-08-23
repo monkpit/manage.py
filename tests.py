@@ -203,7 +203,7 @@ another_key=another value"""
         def throwaway(required=None, optional=None):
             return required, optional
         self.assertEqual(len(new_manager.env_vars['throwaway']), 2)
-        if 'REQURIED' in os.environ:
+        if 'REQUIRED' in os.environ:
             del os.environ['REQUIRED']
         self.assertRaises(KeyError, throwaway)
         os.environ['REQUIRED'] = 'foo'
