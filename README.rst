@@ -107,3 +107,12 @@ Environment
 -----------
 
 Environment variables can be sourced from a ``.env`` file as ``key=value`` pair.
+
+Environment variable can be enforce using ``Manager.env`` decorator
+
+.. code:: python
+
+    @manager.env('MY_ENV_VAR')
+    @manager.command
+    def my_command():
+        return os.environ['MY_ENV_VAR']
