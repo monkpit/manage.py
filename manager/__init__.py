@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
+import collections
+import functools
 import sys
 import re
 import os
@@ -126,6 +128,8 @@ class Command(object):
 class Manager(object):
     def __init__(self):
         self.commands = {}
+        self.env_vars = collections.defaultdict(dict)
+        self.command(self.list_env)
 
     @property
     def Command(self):
@@ -236,6 +240,51 @@ class Manager(object):
             return self.usage()
         self.update_env()
         command.parse(args.all[1:])
+
+    def env(self, key, value=None):
+        """Decorator to register an ENV variable needed for a method.
+
+        For optional env variables, set a default value using <value>.
+
+        All env vars will be made available as key word arguments.
+
+        @manager.env('SOME_ARG')
+        def your_method(some_arg):
+            ...
+        """
+        key = key.lower()
+
+        def decorator(f):
+            self.env_vars[f.__name__][key] = value
+
+            @functools.wraps(f)
+            def wrapper(*args, **kwargs):
+                if kwargs.get(key, None) is None:
+                    if key.upper() in os.environ:
+                        kwargs[key] = os.environ[key.upper()]
+                    elif value:
+                        kwargs[key] = value
+                    else:
+                        raise KeyError('Please set ENV var %s.' % key.upper())
+                return f(*args, **kwargs)
+            return wrapper
+        return decorator
+
+    def list_env(self):
+        """List required and optional environment variables."""
+        if not self.env_vars:
+            puts('No ENV variables have been registered.')
+            puts('To register an ENV variable, use the @env(key, value) ')
+            puts('method decorator of your manager object.')
+            return
+
+        puts('Registered ENV vars per method.\n')
+        for func_name in self.env_vars:
+            puts('%s:' % func_name)
+            for var, default in self.env_vars[func_name].items():
+                default = '(%s)' % default if default is not None else ''
+                puts('\t%s%s' % (min_width(var.upper(), 30), default))
+            puts('')
 
 
 class Arg(object):
