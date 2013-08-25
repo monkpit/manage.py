@@ -89,6 +89,18 @@ class CommandTest(unittest.TestCase):
         self.assertFalse(args[1].required)
         self.assertEqual(args[1].default, False)
 
+    def test_inspect_not_typed_optional_argument(self):
+        new_manager = Manager()
+
+        @new_manager.command
+        def new_command(first_arg=None):
+            return first_arg
+
+        with capture() as c:
+            new_manager.commands['new_command'].parse(['--first_arg', 'test'])
+
+        self.assertNotIn(c.getvalue(), 'ERROR')
+
     def test_path_root(self):
         self.assertEqual(manager.commands['simple_command'].path,
             'simple_command')

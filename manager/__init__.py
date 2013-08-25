@@ -71,10 +71,13 @@ class Command(object):
         else:
             kwargs = []
         for arg_name in self.arg_names:
+            type_ = type(kwargs[arg_name]) if arg_name in kwargs else None
+            if type_ == type(None):
+                type_ = None
             arg = Arg(
                 arg_name,
                 default=kwargs[arg_name] if arg_name in kwargs else None,
-                type=type(kwargs[arg_name]) if arg_name in kwargs else None,
+                type=type_,
                 required=not arg_name in kwargs,
             )
             self.add_argument(arg)
