@@ -227,6 +227,18 @@ class PutsTest(unittest.TestCase):
 
         self.assertEqual(len(c.getvalue().splitlines()), 2)
 
+    def test_true(self):
+        with capture() as c:
+            puts(True)
+
+        self.assertEqual(c.getvalue(), 'OK\n')
+
+    def test_false(self):
+        with capture() as c:
+            puts(False)
+
+        self.assertEqual(c.getvalue(), 'FAILED\n')
+
 
 if __name__ == '__main__':
     unittest.main()

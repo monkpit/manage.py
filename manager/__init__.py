@@ -25,6 +25,10 @@ def puts(r):
             puts(min_width(colored.blue(key), 25) + r[key])
     elif type_ == Error:
         puts(colored.red(str(r)))
+    elif type_ == bool:
+        if r:
+            return puts(colored.green('OK'))
+        return puts(colored.red('FAILED'))
     elif r is not None:
         clint_puts(str(r).strip('\n'), stream=stdout)
 
