@@ -19,18 +19,19 @@ def puts(r):
     stdout = sys.stdout.write
     type_ = type(r)
     if type_ == list:
-        [puts(i) for i in r]
+        return [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
             puts(min_width(colored.blue(key), 25) + r[key])
+        return
     elif type_ == Error:
-        puts(colored.red(str(r)))
+        return puts(colored.red(str(r)))
     elif type_ == bool:
         if r:
             return puts(colored.green('OK'))
         return puts(colored.red('FAILED'))
     elif r is not None:
-        clint_puts(str(r).strip('\n'), stream=stdout)
+        return clint_puts(str(r).strip('\n'), stream=stdout)
 
 
 class Command(object):
