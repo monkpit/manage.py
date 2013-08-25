@@ -129,10 +129,11 @@ class Command(object):
 
 
 class Manager(object):
-    def __init__(self):
+    def __init__(self, envs=False):
         self.commands = {}
         self.env_vars = collections.defaultdict(dict)
-        self.command(self.list_env)
+        if envs:
+            self.command(self.envs)
 
     @property
     def Command(self):
@@ -273,7 +274,7 @@ class Manager(object):
             return wrapper
         return decorator
 
-    def list_env(self):
+    def envs(self):
         """List required and optional environment variables."""
         if not self.env_vars:
             puts('No ENV variables have been registered.')
