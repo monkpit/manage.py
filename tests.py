@@ -106,30 +106,6 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(command.args[0].help,
             'argument help')
 
-    def test_puts_error(self):
-        with capture() as c:
-            manager.commands['raises'].parse(list())
-
-        self.assertEqual(c.getvalue(), 'No way dude!\n')
-
-    def test_puts_none(self):
-        with capture() as c:
-            puts(None)
-
-        self.assertEqual(c.getvalue(), '')
-
-    def test_puts_empty(self):
-        with capture() as c:
-            puts('')
-
-        self.assertEqual(c.getvalue(), '\n')
-
-    def test_puts_list_strip_carriage_returns(self):
-        with capture() as c:
-            puts(['first line\n', 'second line\n'])
-
-        self.assertEqual(len(c.getvalue().splitlines()), 2)
-
     def test_capture_all(self):
         command = Command(run=lambda argv: argv, capture_all=True)
         self.assertEqual(len(command.args), 0)
@@ -224,6 +200,32 @@ another_key=another value"""
         req, opt = throwaway()
         self.assertEqual(req, 'foo')
         self.assertEqual(opt, 'bar')
+
+
+class PutsTest(unittest.TestCase):
+    def test_error(self):
+        with capture() as c:
+            manager.commands['raises'].parse(list())
+
+        self.assertEqual(c.getvalue(), 'No way dude!\n')
+
+    def test_none(self):
+        with capture() as c:
+            puts(None)
+
+        self.assertEqual(c.getvalue(), '')
+
+    def test_empty(self):
+        with capture() as c:
+            puts('')
+
+        self.assertEqual(c.getvalue(), '\n')
+
+    def test_list_strip_carriage_returns(self):
+        with capture() as c:
+            puts(['first line\n', 'second line\n'])
+
+        self.assertEqual(len(c.getvalue().splitlines()), 2)
 
 
 if __name__ == '__main__':
