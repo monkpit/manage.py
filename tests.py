@@ -177,22 +177,18 @@ class ManagerTest(unittest.TestCase):
         self.assertIn('new_namespace.new_command', manager.commands)
 
     def test_parse_env_simple(self):
-        new_manager = Manager()
         env = "key=value"
         self.assertEqual(manager.parse_env(env), dict(key='value'))
 
     def test_parse_env_quote(self):
-        new_manager = Manager()
         env = "key='value'"
         self.assertEqual(manager.parse_env(env), dict(key='value'))
 
     def test_parse_env_double_quote(self):
-        new_manager = Manager()
         env = 'key="value"'
         self.assertEqual(manager.parse_env(env), dict(key='value'))
 
     def test_parse_env_multiline(self):
-        new_manager = Manager()
         env = """key="value"
 another_key=another value"""
         self.assertEqual(manager.parse_env(env), dict(key='value',
@@ -200,6 +196,7 @@ another_key=another value"""
 
     def test_env(self):
         new_manager = Manager()
+
         @new_manager.env('REQUIRED')
         @new_manager.env('OPTIONAL', value='bar')
         def throwaway(required=None, optional=None):
