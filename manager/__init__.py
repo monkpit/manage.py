@@ -114,10 +114,12 @@ class Command(object):
     def parser(self):
         parser = argparse.ArgumentParser(description=self.description)
         for arg in self.args:
-            parser.add_argument(
-                arg.name if arg.required else '--%s' % arg.name,
-                **arg.kwargs
-            )
+            flags = [arg.name]
+            if not arg.required:
+                flags = ['--%s' % arg.name]
+                if arg.shortcut is not None:
+                    flags.append('-%s' % arg.shortcut)
+            parser.add_argument(*flags, **arg.kwargs)
         return parser
 
     @property
@@ -149,10 +151,10 @@ class Manager(object):
     def add_command(self, command):
         self.commands[command.path] = command
 
-    def arg(self, name, **kwargs):
+    def arg(self, name, shortcut=None, **kwargs):
         def wrapper(command):
             def wrapped(**kwargs):
-                command.add_argument(Arg(name, **kwargs))
+                command.add_argument(Arg(name, shortcut, **kwargs))
                 return command
             return wrapped(**kwargs)
 
@@ -295,8 +297,9 @@ class Arg(object):
         'type': None,
     }
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, shortcut=None, **kwargs):
         self.name = name
+        self.shortcut = shortcut
         self._kwargs = self.defaults.copy()
         self._kwargs.update(kwargs)
 

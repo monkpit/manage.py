@@ -162,6 +162,20 @@ class ManagerTest(unittest.TestCase):
         self.assertEqual(command.args[0].help, 'first help')
         self.assertEqual(command.args[1].help, 'second help')
 
+    def test_arg_with_shortcut(self):
+        @manager.arg('first_arg', shortcut='f')
+        @manager.command
+        def new_command(first_arg=None):
+            return first_arg
+
+        command = manager.commands['new_command']
+        expected = 'test'
+
+        with capture() as c:
+            command.parse(['-f', expected])
+
+        self.assertEqual(c.getvalue(), '%s\n' % expected)
+
     def test_merge(self):
         new_manager = Manager()
         new_manager.add_command(Command(name='new_command'))
