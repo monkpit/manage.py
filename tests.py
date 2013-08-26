@@ -182,6 +182,18 @@ class ManagerTest(unittest.TestCase):
 
         self.assertEqual(c.getvalue(), '%s\n' % expected)
 
+    def test_arg_extra_arg(self):
+        @manager.arg('second_arg')
+        @manager.command
+        def new_command(first_arg, **kwargs):
+            return 'second_arg' in kwargs
+
+        command = manager.commands['new_command']
+        with capture() as c:
+            command.parse(['first', '--second_arg', 'second value'])
+
+        self.assertEqual(c.getvalue(), 'OK\n')
+
     def test_merge(self):
         new_manager = Manager()
         new_manager.add_command(Command(name='new_command'))

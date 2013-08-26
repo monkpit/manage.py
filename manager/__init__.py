@@ -84,8 +84,6 @@ class Command(object):
 
     def add_argument(self, arg):
         dest = arg.dest if hasattr(arg, 'dest') else arg.name
-        if dest not in self.arg_names:
-            raise Exception('Invalid arg %s' % arg.name)
         if self.has_argument(arg.name):
             raise Exception('Arg %s already exists' % arg.name)
         self.args.append(arg)
@@ -107,14 +105,14 @@ class Command(object):
             args, kwargs = [args], {}
         else:
             parsed_args = self.parser.parse_args(args)
-            args, kwargs = [], {}
+            kwargs = dict(parsed_args._get_kwargs())
+            args = []
             position = 0
             for arg_name in self.arg_names:
                 arg = self.args[position]
                 if arg.required:
                     args.append(getattr(parsed_args, arg_name))
-                elif hasattr(parsed_args, arg_name):
-                    kwargs[arg_name] = getattr(parsed_args, arg_name)
+                    del kwargs[arg_name]
                 position = position + 1
         try:
             r = self.run(*args, **kwargs)
