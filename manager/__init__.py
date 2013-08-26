@@ -115,7 +115,7 @@ class Command(object):
                     del kwargs[arg_name]
                 position = position + 1
         try:
-            r = self.run(*args, **kwargs)
+            r = self(*args, **kwargs)
         except Error as e:
             r = e
         return puts(r)
