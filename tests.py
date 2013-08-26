@@ -156,6 +156,18 @@ class ManagerTest(unittest.TestCase):
         self.assertEqual(command.args[0].help, 'first help')
         self.assertEqual(command.args[1].help, 'second help')
 
+    def test_arg_preserve_inspected(self):
+        @manager.arg('first_arg', shortcut='f')
+        @manager.command
+        def new_command(first_arg=False):
+            return first_arg
+
+        command = manager.commands['new_command']
+        arg = command.get_argument('first_arg')
+        self.assertEqual(arg.shortcut, 'f')
+        self.assertEqual(arg.kwargs['action'], 'store_true')
+        self.assertEqual(arg.kwargs['default'], False)
+
     def test_arg_with_shortcut(self):
         @manager.arg('first_arg', shortcut='f')
         @manager.command

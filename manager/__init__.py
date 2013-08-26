@@ -167,6 +167,12 @@ class Manager(object):
     def arg(self, name, shortcut=None, **kwargs):
         def wrapper(command):
             def wrapped(**kwargs):
+                if command.has_argument(name):
+                    arg = command.get_argument(name)
+                    if shortcut is not None:
+                        arg.shortcut = shortcut
+                    arg._kwargs.update(**kwargs)
+                    return command
                 command.add_argument(Arg(name, shortcut, **kwargs))
                 return command
             return wrapped(**kwargs)
