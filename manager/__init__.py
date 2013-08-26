@@ -87,10 +87,8 @@ class Command(object):
         if dest not in self.arg_names:
             raise Exception('Invalid arg %s' % arg.name)
         if self.has_argument(arg.name):
-            position = self.arg_names.index(dest)
-            self.args[position] = arg
-        else:
-            self.args.append(arg)
+            raise Exception('Arg %s already exists' % arg.name)
+        self.args.append(arg)
 
     def get_argument(self, name):
         if not self.has_argument(name):

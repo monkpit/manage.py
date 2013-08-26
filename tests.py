@@ -118,14 +118,11 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(manager.commands['my_namespace.namespaced'].path,
             'my_namespace.namespaced')
 
-    def test_add_argument(self):
+    def test_add_argument_existsing(self):
         command = Command(run=lambda new_argument: new_argument)
         self.assertEqual(len(command.args), 1)
         arg = Arg('new_argument', help='argument help')
-        command.add_argument(arg)
-        self.assertEqual(len(command.args), 1)
-        self.assertEqual(command.args[0].help,
-            'argument help')
+        self.assertRaises(Exception, command.add_argument, arg)
 
     def test_capture_all(self):
         command = Command(run=lambda argv: argv, capture_all=True)
