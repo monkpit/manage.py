@@ -139,7 +139,8 @@ class Command(object):
 
 
 class Manager(object):
-    def __init__(self, envs=False):
+    def __init__(self, base_command=Command, envs=False):
+        self.base_command = base_command
         self.commands = {}
         self.env_vars = collections.defaultdict(dict)
         if envs:
@@ -154,10 +155,9 @@ class Manager(object):
                 new = type.__new__(meta, name, bases, dict_)
                 if name != 'BoundCommand':
                     manager.add_command(new())
-
                 return new
 
-        return BoundMeta('BoundCommand', (Command, ), {})
+        return BoundMeta('BoundCommand', (self.base_command, ), {})
 
     def add_command(self, command):
         self.commands[command.path] = command

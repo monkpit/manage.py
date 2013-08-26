@@ -145,6 +145,18 @@ class ManagerTest(unittest.TestCase):
             'namespaced command'
         )
 
+    def test_base_command(self):
+        class ExtendedCommand(Command):
+            attribute = 'value'
+
+        new_manager = Manager(base_command=ExtendedCommand)
+
+        @new_manager.command
+        def my_command():
+            return True
+
+        self.assertTrue(hasattr(my_command, 'attribute'))
+
     def test_arg_decorator(self):
         @manager.arg('first_arg', help='first help')
         @manager.arg('second_arg', help='second help')
