@@ -92,6 +92,12 @@ class Command(object):
         else:
             self.args.append(arg)
 
+    def get_argument(self, name):
+        if not self.has_argument(name):
+            raise Exception('Arg %s does not exist' % name)
+        position = self.arg_names.index(name)
+        return self.args[position]
+
     def has_argument(self, name):
         return name in [arg.name for arg in self.args]
 

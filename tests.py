@@ -69,6 +69,15 @@ class CommandTest(unittest.TestCase):
         self.assertIn('my_command', manager.commands)
         del manager.commands['my_command']
 
+    def test_get_argument_existing(self):
+        command = manager.commands['class_based']
+        arg = command.get_argument('capitalyze')
+        self.assertTrue(arg is not None)
+
+    def test_get_argument_not_existing(self):
+        command = manager.commands['class_based']
+        self.assertRaises(Exception, command.get_argument, 'invalid')
+
     def test_inspect_class_based(self):
         args = manager.commands['class_based'].args
         self.assertEqual(len(args), 2)
