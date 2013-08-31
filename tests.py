@@ -218,6 +218,14 @@ class ManagerTest(unittest.TestCase):
         manager.merge(new_manager, namespace='new_namespace')
         self.assertIn('new_namespace.new_command', manager.commands)
 
+    def test_parse_error(self):
+        with capture() as c:
+            try:
+                manager.commands['raises'].parse(list())
+            except SystemExit:
+                pass
+        self.assertEqual(c.getvalue(), 'No way dude!\n')
+
     def test_parse_false(self):
         @manager.command
         def new_command(**kwargs):
@@ -263,12 +271,6 @@ another_key=another value"""
 
 
 class PutsTest(unittest.TestCase):
-    def test_error(self):
-        with capture() as c:
-            manager.commands['raises'].parse(list())
-
-        self.assertEqual(c.getvalue(), 'No way dude!\n')
-
     def test_none(self):
         with capture() as c:
             puts(None)
