@@ -7,7 +7,12 @@ import re
 import os
 import inspect
 
-from clint import args
+try:
+    from clint import args
+except:
+    from clint import arguments
+    args = arguments.Args()
+
 from clint.textui import colored, puts as clint_puts, min_width, indent
 
 
