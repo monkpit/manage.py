@@ -121,9 +121,13 @@ class Command(object):
                 position = position + 1
         try:
             r = self(*args, **kwargs)
+            failed = r is False
         except Error as e:
             r = e
-        return puts(r)
+            failed = True
+        puts(r)
+        if failed:
+            sys.exit(1)
 
     @property
     def parser(self):

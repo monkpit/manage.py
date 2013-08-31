@@ -218,6 +218,15 @@ class ManagerTest(unittest.TestCase):
         manager.merge(new_manager, namespace='new_namespace')
         self.assertIn('new_namespace.new_command', manager.commands)
 
+    def test_parse_false(self):
+        @manager.command
+        def new_command(**kwargs):
+            return False
+
+        with capture() as c:
+            self.assertRaises(SystemExit,
+                manager.commands['new_command'].parse, list())
+
     def test_parse_env_simple(self):
         env = "key=value"
         self.assertEqual(manager.parse_env(env), dict(key='value'))
