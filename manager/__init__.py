@@ -7,11 +7,7 @@ import re
 import os
 import inspect
 
-try:
-    from clint import args
-except:
-    from clint import arguments
-    args = arguments.Args()
+from manager.utils import Args
 
 from clint.textui import colored, puts as clint_puts, min_width, indent
 
@@ -258,9 +254,11 @@ class Manager(object):
                         puts(format_line(command, 25))
                     namespace = command.namespace
 
-    def main(self):
+    def main(self, args=None):
+        args = Args(args)
         if len(args) == 0 or args[0] in ('-h', '--help'):
             return self.usage()
+
         command = args.get(0)
         try:
             command = self.commands[command]
