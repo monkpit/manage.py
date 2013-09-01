@@ -6,7 +6,8 @@ import unittest
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+    from io import StringIO  # NOQA
+
 from manager import Arg, Command, Error, Manager, puts
 
 
@@ -68,6 +69,32 @@ class CommandTest(unittest.TestCase):
 
         self.assertIn('my_command', manager.commands)
         del manager.commands['my_command']
+
+    def test_capture_usage(self):
+        sys.argv[0] = 'manage.py'
+        with capture() as c:
+            manager.main(args=[])
+
+        self.assertMultiLineEqual(
+            c.getvalue(),
+            """\
+usage: manage.py [<namespace>.]<command> [<args>]
+
+positional arguments:
+  command     the command to run
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+available commands:
+  class_based              no description
+  raises                   no description
+  simple_command           no description
+  
+  [my_namespace]
+    namespaced             namespaced command
+"""
+        )
 
     def test_get_argument_existing(self):
         command = manager.commands['class_based']

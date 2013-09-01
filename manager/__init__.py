@@ -32,7 +32,7 @@ def puts(r):
             return puts(colored.green('OK'))
         return puts(colored.red('FAILED'))
     elif r is not None:
-        return clint_puts(str(r).strip('\n'), stream=stdout)
+        return clint_puts(str(r).rstrip('\n'), stream=stdout)
 
 
 class Command(object):
