@@ -43,6 +43,7 @@ def simple_command(name, capitalyze=False):
 @manager.command(namespace='my_namespace')
 def namespaced(name):
     """namespaced command"""
+
     return name
 
 
@@ -138,12 +139,16 @@ available commands:
         self.assertNotIn(c.getvalue(), 'ERROR')
 
     def test_path_root(self):
-        self.assertEqual(manager.commands['simple_command'].path,
-            'simple_command')
+        self.assertEqual(
+            manager.commands['simple_command'].path,
+            'simple_command'
+        )
 
     def test_path_namespace(self):
-        self.assertEqual(manager.commands['my_namespace.namespaced'].path,
-            'my_namespace.namespaced')
+        self.assertEqual(
+            manager.commands['my_namespace.namespaced'].path,
+            'my_namespace.namespaced'
+        )
 
     def test_add_argument_existsing(self):
         command = Command(run=lambda new_argument: new_argument)
@@ -163,8 +168,10 @@ class ManagerTest(unittest.TestCase):
 
     def test_command_decorator_kwargs(self):
         self.assertIn('my_namespace.namespaced', manager.commands)
-        self.assertEqual(len(manager.commands['my_namespace.namespaced'].args),
-            1)
+        self.assertEqual(
+            len(manager.commands['my_namespace.namespaced'].args),
+            1
+        )
 
     def test_command_decorator_doc(self):
         self.assertEqual(
@@ -258,9 +265,11 @@ class ManagerTest(unittest.TestCase):
         def new_command(**kwargs):
             return False
 
-        with capture() as c:
-            self.assertRaises(SystemExit,
-                manager.commands['new_command'].parse, list())
+        with capture():
+            self.assertRaises(
+                SystemExit,
+                manager.commands['new_command'].parse, list()
+            )
 
     def test_parse_env_simple(self):
         env = "key=value"
@@ -277,8 +286,12 @@ class ManagerTest(unittest.TestCase):
     def test_parse_env_multiline(self):
         env = """key="value"
 another_key=another value"""
-        self.assertEqual(manager.parse_env(env), dict(key='value',
-            another_key='another value'))
+        self.assertEqual(
+            manager.parse_env(env), dict(
+                key='value',
+                another_key='another value'
+            )
+        )
 
     def test_env(self):
         new_manager = Manager()

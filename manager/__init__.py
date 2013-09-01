@@ -6,6 +6,7 @@ import sys
 import re
 import os
 import inspect
+from types import NoneType
 
 from manager.utils import Args
 
@@ -67,14 +68,16 @@ class Command(object):
         if hasattr(self.run, 'im_self') or hasattr(self.run, '__self__'):
             del self.arg_names[0]  # Removes `self` arg for class method
         if defaults is not None:
-            kwargs = dict(zip(*[reversed(l) \
-                for l in (self.arg_names, defaults)]))
+            kwargs = dict(zip(
+                *[reversed(l) for l in (self.arg_names, defaults)]
+            ))
         else:
             kwargs = []
         for arg_name in self.arg_names:
             type_ = type(kwargs[arg_name]) if arg_name in kwargs else None
-            if type_ == type(None):
+            if type_ == NoneType:
                 type_ = None
+
             arg = Arg(
                 arg_name,
                 default=kwargs[arg_name] if arg_name in kwargs else None,
@@ -84,7 +87,6 @@ class Command(object):
             self.add_argument(arg)
 
     def add_argument(self, arg):
-        dest = arg.dest if hasattr(arg, 'dest') else arg.name
         if self.has_argument(arg.name):
             raise Exception('Arg %s already exists' % arg.name)
         self.args.append(arg)
@@ -234,16 +236,19 @@ class Manager(object):
 
     def usage(self):
         def format_line(command, w):
-            return "%s%s" % (min_width(command.name, w),
-                command.description)
+            return "%s%s" % (
+                min_width(command.name, w), command.description
+            )
 
         self.parser.print_help()
         if len(self.commands) > 0:
             puts('\navailable commands:')
             with indent(2):
                 namespace = None
-                for command_path in sorted(self.commands,
-                        key=lambda c: '%s%s' % (c.count('.'), c)):
+                for command_path in sorted(
+                        self.commands,
+                        key=lambda c: '%s%s' % (c.count('.'), c)
+                ):
                     command = self.commands[command_path]
                     if command.namespace is not None:
                         if command.namespace != namespace:
@@ -262,7 +267,7 @@ class Manager(object):
         command = args.get(0)
         try:
             command = self.commands[command]
-        except KeyError as e:
+        except KeyError:
             puts(colored.red('Invalid command `%s`\n' % command))
             return self.usage()
         self.update_env()
@@ -337,7 +342,8 @@ class Arg(object):
         dict_ = self._kwargs.copy()
         if self.required:
             del dict_['required']
-        elif self.type == bool and self.default == False:
+
+        elif self.type == bool and self.default is False:
             dict_['action'] = 'store_true'
             del dict_['type']
         return dict_
