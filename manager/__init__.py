@@ -8,9 +8,7 @@ import os
 import inspect
 from types import NoneType
 
-from manager.utils import Args
-
-from clint.textui import colored, puts as clint_puts, min_width, indent
+from manager import utils
 
 
 class Error(Exception):
@@ -24,16 +22,16 @@ def puts(r):
         return [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
-            puts(min_width(colored.blue(key), 25) + r[key])
+            puts(utils.min_width(key, 25) + r[key])
         return
     elif type_ == Error:
-        return puts(colored.red(str(r)))
+        return puts(str(r))
     elif type_ == bool:
         if r:
-            return puts(colored.green('OK'))
-        return puts(colored.red('FAILED'))
+            return puts('OK')
+        return puts('FAILED')
     elif r is not None:
-        return clint_puts(str(r).rstrip('\n'), stream=stdout)
+        return utils.puts(str(r).rstrip('\n'), stream=stdout)
 
 
 class Command(object):
@@ -53,8 +51,10 @@ class Command(object):
         self.args = []
 
         if self.name is None:
-            self.name = re.sub('(.)([A-Z]{1})', r'\1_\2',
-                self.__class__.__name__).lower()
+            self.name = re.sub(
+                '(.)([A-Z]{1})', r'\1_\2',
+                self.__class__.__name__
+            ).lower()
 
         if not self.capture_all:
             self.inspect()
@@ -237,13 +237,13 @@ class Manager(object):
     def usage(self):
         def format_line(command, w):
             return "%s%s" % (
-                min_width(command.name, w), command.description
+                utils.min_width(command.name, w), command.description
             )
 
         self.parser.print_help()
         if len(self.commands) > 0:
             puts('\navailable commands:')
-            with indent(2):
+            with utils.indent(2):
                 namespace = None
                 for command_path in sorted(
                         self.commands,
@@ -252,15 +252,15 @@ class Manager(object):
                     command = self.commands[command_path]
                     if command.namespace is not None:
                         if command.namespace != namespace:
-                            puts(colored.red('\n[%s]' % command.namespace))
-                        with indent(2):
+                            puts('\n[%s]' % command.namespace)
+                        with utils.indent(2):
                             puts(format_line(command, 23))
                     else:
                         puts(format_line(command, 25))
                     namespace = command.namespace
 
     def main(self, args=None):
-        args = Args(args)
+        args = utils.Args(args)
         if len(args) == 0 or args[0] in ('-h', '--help'):
             return self.usage()
 
@@ -268,7 +268,7 @@ class Manager(object):
         try:
             command = self.commands[command]
         except KeyError:
-            puts(colored.red('Invalid command `%s`\n' % command))
+            puts('Invalid command `%s`\n' % command)
             return self.usage()
         self.update_env()
         command.parse(args.all[1:])
@@ -315,7 +315,7 @@ class Manager(object):
             puts('%s:' % func_name)
             for var, default in self.env_vars[func_name].items():
                 default = '(%s)' % default if default is not None else ''
-                puts('\t%s%s' % (min_width(var.upper(), 30), default))
+                puts('\t%s%s' % (utils.min_width(var.upper(), 30), default))
             puts('')
 
 

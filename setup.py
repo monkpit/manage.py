@@ -11,7 +11,7 @@ setup(
     author_email='jps@birdback.com',
     url='https://github.com/Birdback/manage.py',
     packages=find_packages(),
-    install_requires=['clint'],
+    install_requires=[],
     entry_points={
         'console_scripts': [
             'manage = manager.main:main',

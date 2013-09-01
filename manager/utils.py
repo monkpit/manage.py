@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import os
 from glob import glob
-from sys import argv
+import sys
 
 try:
     from collections import OrderedDict
@@ -11,6 +11,9 @@ except ImportError:
 
 __all__ = ('Args', )
 
+STDOUT = sys.stdout.write
+NEWLINES = ('\n', '\r', '\r\n')
+
 
 class Args(object):
     """CLI Argument management."""
@@ -18,7 +21,7 @@ class Args(object):
     def __init__(self, args=None, no_argv=False):
         if args is None:
             if not no_argv:
-                self._args = argv[1:]
+                self._args = sys.argv[1:]
             else:
                 self._args = []
         else:
@@ -342,3 +345,86 @@ def is_collection(obj):
         return False
 
     return hasattr(obj, '__getitem__')
+
+
+class Writer(object):
+    """WriterUtilized by context managers."""
+
+    shared = dict(indent_level=0, indent_strings=[])
+
+    def __init__(self, indent=0, quote='', indent_char=' '):
+        self.indent = indent
+        self.indent_char = indent_char
+        self.indent_quote = quote
+        if self.indent > 0:
+            self.indent_string = ''.join((
+                str(quote),
+                (self.indent_char * (indent - len(self.indent_quote)))
+            ))
+        else:
+            self.indent_string = ''.join((
+                ('\x08' * (-1 * (indent - len(self.indent_quote)))),
+                str(quote))
+            )
+
+        if len(self.indent_string):
+            self.shared['indent_strings'].append(self.indent_string)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.shared['indent_strings'].pop()
+
+    def __call__(self, s, newline=True, stream=STDOUT):
+        if newline:
+            s = tsplit(s, NEWLINES)
+            s = map(str, s)
+            indent = ''.join(self.shared['indent_strings'])
+
+            s = (str('\n' + indent)).join(s)
+
+        _str = ''.join((
+            ''.join(self.shared['indent_strings']),
+            str(s),
+            '\n' if newline else ''
+        ))
+        stream(_str)
+
+
+def puts(s='', newline=True, stream=STDOUT):
+    """Prints given string to stdout via Writer interface."""
+    Writer()(s, newline, stream=stream)
+
+
+def indent(indent=4, quote=''):
+    """Indentation context manager."""
+    return Writer(indent=indent, quote=quote)
+
+
+def tsplit(string, delimiters):
+    """Behaves str.split but supports tuples of delimiters."""
+
+    delimiters = tuple(delimiters)
+    stack = [string, ]
+
+    for delimiter in delimiters:
+        for i, substring in enumerate(stack):
+            substack = substring.split(delimiter)
+            stack.pop(i)
+            for j, _substring in enumerate(substack):
+                stack.insert(i+j, _substring)
+
+    return stack
+
+
+def min_width(string, cols, padding=' '):
+    """Returns given string with right padding."""
+
+    stack = tsplit(str(string), NEWLINES)
+
+    for i, substring in enumerate(stack):
+        _sub = substring.ljust((cols + 0), padding)
+        stack[i] = _sub
+
+    return '\n'.join(stack)
