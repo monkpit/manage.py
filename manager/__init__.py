@@ -6,14 +6,9 @@ import sys
 import re
 import os
 import inspect
+from types import NoneType
 
-try:
-    from clint import args
-except:
-    from clint import arguments
-    args = arguments.Args()
-
-from clint.textui import colored, puts as clint_puts, min_width, indent
+from manager import utils
 
 
 class Error(Exception):
@@ -27,16 +22,16 @@ def puts(r):
         return [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
-            puts(min_width(colored.blue(key), 25) + r[key])
+            puts(utils.min_width(key, 25) + r[key])
         return
     elif type_ == Error:
-        return puts(colored.red(str(r)))
+        return puts(str(r))
     elif type_ == bool:
         if r:
-            return puts(colored.green('OK'))
-        return puts(colored.red('FAILED'))
+            return puts('OK')
+        return puts('FAILED')
     elif r is not None:
-        return clint_puts(str(r).strip('\n'), stream=stdout)
+        return utils.puts(str(r).rstrip('\n'), stream=stdout)
 
 
 class Command(object):
@@ -56,8 +51,10 @@ class Command(object):
         self.args = []
 
         if self.name is None:
-            self.name = re.sub('(.)([A-Z]{1})', r'\1_\2',
-                self.__class__.__name__).lower()
+            self.name = re.sub(
+                '(.)([A-Z]{1})', r'\1_\2',
+                self.__class__.__name__
+            ).lower()
 
         if not self.capture_all:
             self.inspect()
@@ -71,14 +68,16 @@ class Command(object):
         if hasattr(self.run, 'im_self') or hasattr(self.run, '__self__'):
             del self.arg_names[0]  # Removes `self` arg for class method
         if defaults is not None:
-            kwargs = dict(zip(*[reversed(l) \
-                for l in (self.arg_names, defaults)]))
+            kwargs = dict(zip(
+                *[reversed(l) for l in (self.arg_names, defaults)]
+            ))
         else:
             kwargs = []
         for arg_name in self.arg_names:
             type_ = type(kwargs[arg_name]) if arg_name in kwargs else None
-            if type_ == type(None):
+            if type_ == NoneType:
                 type_ = None
+
             arg = Arg(
                 arg_name,
                 default=kwargs[arg_name] if arg_name in kwargs else None,
@@ -88,7 +87,6 @@ class Command(object):
             self.add_argument(arg)
 
     def add_argument(self, arg):
-        dest = arg.dest if hasattr(arg, 'dest') else arg.name
         if self.has_argument(arg.name):
             raise Exception('Arg %s already exists' % arg.name)
         self.args.append(arg)
@@ -238,34 +236,39 @@ class Manager(object):
 
     def usage(self):
         def format_line(command, w):
-            return "%s%s" % (min_width(command.name, w),
-                command.description)
+            return "%s%s" % (
+                utils.min_width(command.name, w), command.description
+            )
 
         self.parser.print_help()
         if len(self.commands) > 0:
             puts('\navailable commands:')
-            with indent(2):
+            with utils.indent(2):
                 namespace = None
-                for command_path in sorted(self.commands,
-                        key=lambda c: '%s%s' % (c.count('.'), c)):
+                for command_path in sorted(
+                        self.commands,
+                        key=lambda c: '%s%s' % (c.count('.'), c)
+                ):
                     command = self.commands[command_path]
                     if command.namespace is not None:
                         if command.namespace != namespace:
-                            puts(colored.red('\n[%s]' % command.namespace))
-                        with indent(2):
+                            puts('\n[%s]' % command.namespace)
+                        with utils.indent(2):
                             puts(format_line(command, 23))
                     else:
                         puts(format_line(command, 25))
                     namespace = command.namespace
 
-    def main(self):
+    def main(self, args=None):
+        args = utils.Args(args)
         if len(args) == 0 or args[0] in ('-h', '--help'):
             return self.usage()
+
         command = args.get(0)
         try:
             command = self.commands[command]
-        except KeyError as e:
-            puts(colored.red('Invalid command `%s`\n' % command))
+        except KeyError:
+            puts('Invalid command `%s`\n' % command)
             return self.usage()
         self.update_env()
         command.parse(args.all[1:])
@@ -312,7 +315,7 @@ class Manager(object):
             puts('%s:' % func_name)
             for var, default in self.env_vars[func_name].items():
                 default = '(%s)' % default if default is not None else ''
-                puts('\t%s%s' % (min_width(var.upper(), 30), default))
+                puts('\t%s%s' % (utils.min_width(var.upper(), 30), default))
             puts('')
 
 
@@ -339,7 +342,8 @@ class Arg(object):
         dict_ = self._kwargs.copy()
         if self.required:
             del dict_['required']
-        elif self.type == bool and self.default == False:
+
+        elif self.type == bool and self.default is False:
             dict_['action'] = 'store_true'
             del dict_['type']
         return dict_

@@ -6,7 +6,8 @@ import unittest
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+    from io import StringIO  # NOQA
+
 from manager import Arg, Command, Error, Manager, puts
 
 
@@ -42,6 +43,7 @@ def simple_command(name, capitalyze=False):
 @manager.command(namespace='my_namespace')
 def namespaced(name):
     """namespaced command"""
+
     return name
 
 
@@ -68,6 +70,32 @@ class CommandTest(unittest.TestCase):
 
         self.assertIn('my_command', manager.commands)
         del manager.commands['my_command']
+
+    def test_capture_usage(self):
+        sys.argv[0] = 'manage.py'
+        with capture() as c:
+            manager.main(args=[])
+
+        self.assertMultiLineEqual(
+            c.getvalue(),
+            """\
+usage: manage.py [<namespace>.]<command> [<args>]
+
+positional arguments:
+  command     the command to run
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+available commands:
+  class_based              no description
+  raises                   no description
+  simple_command           no description
+  
+  [my_namespace]
+    namespaced             namespaced command
+"""
+        )
 
     def test_get_argument_existing(self):
         command = manager.commands['class_based']
@@ -111,12 +139,16 @@ class CommandTest(unittest.TestCase):
         self.assertNotIn(c.getvalue(), 'ERROR')
 
     def test_path_root(self):
-        self.assertEqual(manager.commands['simple_command'].path,
-            'simple_command')
+        self.assertEqual(
+            manager.commands['simple_command'].path,
+            'simple_command'
+        )
 
     def test_path_namespace(self):
-        self.assertEqual(manager.commands['my_namespace.namespaced'].path,
-            'my_namespace.namespaced')
+        self.assertEqual(
+            manager.commands['my_namespace.namespaced'].path,
+            'my_namespace.namespaced'
+        )
 
     def test_add_argument_existsing(self):
         command = Command(run=lambda new_argument: new_argument)
@@ -136,8 +168,10 @@ class ManagerTest(unittest.TestCase):
 
     def test_command_decorator_kwargs(self):
         self.assertIn('my_namespace.namespaced', manager.commands)
-        self.assertEqual(len(manager.commands['my_namespace.namespaced'].args),
-            1)
+        self.assertEqual(
+            len(manager.commands['my_namespace.namespaced'].args),
+            1
+        )
 
     def test_command_decorator_doc(self):
         self.assertEqual(
@@ -231,9 +265,11 @@ class ManagerTest(unittest.TestCase):
         def new_command(**kwargs):
             return False
 
-        with capture() as c:
-            self.assertRaises(SystemExit,
-                manager.commands['new_command'].parse, list())
+        with capture():
+            self.assertRaises(
+                SystemExit,
+                manager.commands['new_command'].parse, list()
+            )
 
     def test_parse_env_simple(self):
         env = "key=value"
@@ -250,8 +286,12 @@ class ManagerTest(unittest.TestCase):
     def test_parse_env_multiline(self):
         env = """key="value"
 another_key=another value"""
-        self.assertEqual(manager.parse_env(env), dict(key='value',
-            another_key='another value'))
+        self.assertEqual(
+            manager.parse_env(env), dict(
+                key='value',
+                another_key='another value'
+            )
+        )
 
     def test_env(self):
         new_manager = Manager()
