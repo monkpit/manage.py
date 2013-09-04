@@ -8,7 +8,7 @@ import os
 import inspect
 from types import NoneType
 
-from manager import utils
+from manager import cli
 
 
 class Error(Exception):
@@ -22,7 +22,7 @@ def puts(r):
         return [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
-            puts(utils.min_width(key, 25) + r[key])
+            puts(cli.min_width(key, 25) + r[key])
         return
     elif type_ == Error:
         return puts(str(r))
@@ -31,7 +31,7 @@ def puts(r):
             return puts('OK')
         return puts('FAILED')
     elif r is not None:
-        return utils.puts(str(r).rstrip('\n'), stream=stdout)
+        return cli.puts(str(r).rstrip('\n'), stream=stdout)
 
 
 class Command(object):
@@ -237,13 +237,13 @@ class Manager(object):
     def usage(self):
         def format_line(command, w):
             return "%s%s" % (
-                utils.min_width(command.name, w), command.description
+                cli.min_width(command.name, w), command.description
             )
 
         self.parser.print_help()
         if len(self.commands) > 0:
             puts('\navailable commands:')
-            with utils.indent(2):
+            with cli.indent(2):
                 namespace = None
                 for command_path in sorted(
                         self.commands,
@@ -253,14 +253,14 @@ class Manager(object):
                     if command.namespace is not None:
                         if command.namespace != namespace:
                             puts('\n[%s]' % command.namespace)
-                        with utils.indent(2):
+                        with cli.indent(2):
                             puts(format_line(command, 23))
                     else:
                         puts(format_line(command, 25))
                     namespace = command.namespace
 
     def main(self, args=None):
-        args = utils.Args(args)
+        args = cli.Args(args)
         if len(args) == 0 or args[0] in ('-h', '--help'):
             return self.usage()
 
@@ -315,7 +315,7 @@ class Manager(object):
             puts('%s:' % func_name)
             for var, default in self.env_vars[func_name].items():
                 default = '(%s)' % default if default is not None else ''
-                puts('\t%s%s' % (utils.min_width(var.upper(), 30), default))
+                puts('\t%s%s' % (cli.min_width(var.upper(), 30), default))
             puts('')
 
 
