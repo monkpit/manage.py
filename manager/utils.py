@@ -124,7 +124,8 @@ class Args(object):
             return _find(x)
 
     def first_without(self, x):
-        """Returns first found index not containing value (or list of values)"""
+        """Returns first found index not containing value (or list of values).
+        """
 
         def _find(x):
             try:
@@ -144,7 +145,8 @@ class Args(object):
             return _find(x)
 
     def start_with(self, x):
-        """Returns all arguments beginning with given string (or list thereof)"""
+        """Returns all arguments beginning with given string (or list thereof).
+        """
 
         _args = []
 
@@ -188,7 +190,9 @@ class Args(object):
             return False
 
     def value_after(self, x):
-        """Returns value of argument after given found argument (or list thereof)."""
+        """Returns value of argument after given found argument
+        (or list thereof).
+        """
 
         try:
             try:
@@ -256,7 +260,8 @@ class Args(object):
         return Args(_args, no_argv=True)
 
     def all_without(self, x):
-        """Returns all arguments not containing given string (or list thereof)"""
+        """Returns all arguments not containing given string (or list thereof).
+        """
 
         _args = []
 
@@ -413,7 +418,7 @@ def tsplit(string, delimiters):
             substack = substring.split(delimiter)
             stack.pop(i)
             for j, _substring in enumerate(substack):
-                stack.insert(i+j, _substring)
+                stack.insert(i + j, _substring)
 
     return stack
 
