@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os
+import getpass
 from glob import glob
 import sys
 
@@ -468,3 +469,59 @@ def process_value(value, empty=False, type_=str, default=None, allowed=None,
         raise Exception('Invalid input')
 
     return type_(value)
+
+
+def prompt(message, empty=False, hidden=False, type_=str, default=None,
+        allowed=None, true_choices=TRUE_CHOICES, false_choices=FALSE_CHOICES,
+        max_attempt=3):
+    """Prompt user for value.
+
+    :param str message: The prompt message.
+    :param bool empty: Allow empty value.
+    :param bool hidden: Hide user input.
+    :param type type_: The expected type.
+    :param mixed default: The default value.
+    :param tuple allowed: The allowed values.
+    :param tuple true_choices: The accpeted values for True.
+    :param tuple false_choices: The accepted values for False.
+    :param int max_attempt: How many times the user is prompted back in case
+        of invalid input.
+    """
+    if allowed is not None and empty:
+        allowed = allowed + ('', '\n')
+
+    if type_ is bool:
+        allowed = true_choices + false_choices
+
+    if allowed is not None:
+        message = "%s [%s]" % (message, ", ".join(allowed))
+
+    if default is not None:
+        message = "%s (default: %s) " % (message, default)
+
+    message = "%s : " % message
+
+    handler = raw_input
+    if hidden:
+        handler = getpass.getpass
+
+    attempt = 0
+
+    while attempt < max_attempt:
+        try:
+            value = process_value(
+                handler(message),
+                empty=empty,
+                type_=type_,
+                default=default,
+                allowed=allowed,
+                true_choices=true_choices,
+                false_choices=false_choices,
+            )
+            return value
+        except:
+            attempt = attempt + 1
+
+    from manager import Error
+
+    raise Error('Invalid input')
