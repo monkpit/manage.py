@@ -410,7 +410,7 @@ class PromptTest(unittest.TestCase):
 
     def test_string_empty_disallowed(self):
         name = 'Simple prompt'
-        with capture(prompts=[(name, '\n')]) as c:
+        with capture(prompts=[(name, '')]) as c:
             self.assertRaises(Error, prompt, name)
 
     def test_string_default(self):
