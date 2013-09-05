@@ -530,3 +530,32 @@ def prompt(message, empty=False, hidden=False, type_=str, default=None,
     from manager import Error
 
     raise Error('Invalid input')
+
+
+class Colored(object):
+    def __init__(self, color, string):
+        self.color = color
+        self.string = string
+
+    def __len__(self):
+        return len(self.string)
+
+    def __str__(self):
+        if sys.stdout.isatty():
+            return "%s%s\033[0m" % (self.color, self.string)
+        return self.string
+
+    def __eq__(self, other):
+        return self.string == other
+
+
+def blue(string):
+    return Colored('\033[94m', string)
+
+
+def green(string):
+    return Colored('\033[92m', string)
+
+
+def red(string):
+    return Colored('\033[91m', string)

@@ -21,14 +21,14 @@ def puts(r):
         return [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
-            puts(cli.min_width(key, 25) + r[key])
+            puts(cli.blue(cli.min_width(key, 25) + r[key]))
         return
     elif type_ == Error:
-        return puts(str(r))
+        return puts(cli.red(str(r)))
     elif type_ == bool:
         if r:
-            return puts('OK')
-        return puts('FAILED')
+            return puts(cli.green('OK'))
+        return puts(cli.red('FAILED'))
     elif r is not None:
         return cli.puts(str(r).rstrip('\n'), stream=stdout)
 
@@ -251,7 +251,7 @@ class Manager(object):
                     command = self.commands[command_path]
                     if command.namespace is not None:
                         if command.namespace != namespace:
-                            puts('\n[%s]' % command.namespace)
+                            puts(cli.red('\n[%s]' % command.namespace))
                         with cli.indent(2):
                             puts(format_line(command, 23))
                     else:
@@ -267,7 +267,7 @@ class Manager(object):
         try:
             command = self.commands[command]
         except KeyError:
-            puts('Invalid command `%s`\n' % command)
+            puts(cli.red('Invalid command `%s`\n' % command))
             return self.usage()
         self.update_env()
         command.parse(args.all[1:])
