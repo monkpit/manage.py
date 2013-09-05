@@ -433,3 +433,38 @@ def min_width(string, cols, padding=' '):
         stack[i] = _sub
 
     return '\n'.join(stack)
+
+
+TRUE_CHOICES = ('y', 'yes')
+FALSE_CHOICES = ('n', 'no')
+
+
+def process_value(value, empty=False, type_=str, default=None, allowed=None,
+        true_choices=TRUE_CHOICES, false_choices=FALSE_CHOICES):
+    """Process prompted value.
+
+    :param str value: The value to process.
+    :param bool empty: Allow empty value.
+    :param type type_: The expected type.
+    :param mixed default: The default value.
+    :param tuple allowed: The allowed values.
+    :param tuple true_choices: The accpeted values for True.
+    :param tuple false_choices: The accepted values for False.
+    """
+    if allowed is not None and value not in allowed:
+        raise Exception('Invalid input')
+
+    if type_ is bool:
+        if value in true_choices:
+            return True
+        if value in false_choices:
+            return False
+
+    if value == '':
+        if default is not None:
+            return default
+        if empty:
+            return None
+        raise Exception('Invalid input')
+
+    return type_(value)
