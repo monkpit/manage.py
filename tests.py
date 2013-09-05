@@ -395,6 +395,50 @@ class PromptTest(unittest.TestCase):
         value = process_value('', default='default value')
         self.assertEqual(value, 'default value')
 
+    def test_string(self):
+        with capture(prompts=[('Simple prompt', 'simple value')]) as c:
+            value = prompt('Simple prompt')
+
+        self.assertEqual(value, 'simple value')
+
+    def test_string_empty_allowed(self):
+        name = 'Simple prompt'
+        with capture(prompts=[(name, '\n')]) as c:
+            value = prompt(name, empty=True)
+
+        self.assertEqual(value, None)
+
+    def test_string_empty_disallowed(self):
+        name = 'Simple prompt'
+        with capture(prompts=[(name, '\n')]) as c:
+            self.assertRaises(Error, prompt, name)
+
+    def test_string_default(self):
+        name = 'Simple prompt'
+        with capture(prompts=[(name, '\n')]) as c:
+            value = prompt(name, default='default value')
+
+        self.assertEqual(value, 'default value')
+
+    def test_boolean_empty(self):
+        name = 'Bool prompt'
+        with capture(prompts=[(name, '\n')]) as c:
+            self.assertRaises(Error, prompt, name, type_=bool)
+
+    def test_boolean_yes(self):
+        name = 'Bool prompt'
+        with capture(prompts=[(name, 'yes')]) as c:
+            value = prompt(name, type_=bool)
+
+        self.assertEqual(value, True)
+
+    def test_boolean_no(self):
+        name = 'Bool prompt'
+        with capture(prompts=[(name, 'n')]) as c:
+            value = prompt(name, type_=bool)
+
+        self.assertEqual(value, False)
+
 
 if __name__ == '__main__':
     unittest.main()
