@@ -6,6 +6,11 @@ from glob import glob
 import sys
 
 try:
+    raw_input
+except NameError:
+    raw_input = input
+
+try:
     from collections import OrderedDict
 except ImportError:
     from .packages.ordereddict import OrderedDict  # NOQA
