@@ -2,6 +2,7 @@
 import os
 import sys
 import unittest
+import re
 
 try:
     from StringIO import StringIO
@@ -9,21 +10,45 @@ except ImportError:
     from io import StringIO  # NOQA
 
 from manager import Arg, Command, Error, Manager, puts
+from manager.cli import process_value, prompt, TRUE_CHOICES, FALSE_CHOICES
 
 
 manager = Manager()
 
 
+class StdOut(StringIO):
+    def __init__(self, stdin, prompts=None):
+        StringIO.__init__(self)
+        self.stdin = stdin
+        self.prompts = prompts or {}
+
+    def write(self, message):
+        for key, value in self.prompts:
+            if re.search(key, message):
+                self.stdin.truncate(0)
+                self.stdin.write(value)
+                self.stdin.seek(0)
+                return
+
+        StringIO.write(self, message)
+
+
 class capture(object):
     """Captures the std output.
     """
+    def __init__(self, prompts=None):
+        self.prompts = prompts
+
     def __enter__(self):
-        self.backup = sys.stdout
-        sys.stdout = StringIO()
+        self._stdout = sys.stdout
+        self._stdin = sys.stdin
+        sys.stdin = StringIO()
+        sys.stdout = StdOut(sys.stdin, prompts=self.prompts)
         return sys.stdout
 
     def __exit__(self, type, value, traceback):
-        sys.stdout = self.backup
+        sys.stdout = self._stdout
+        sys.stdin = self._stdin
 
 
 class ClassBased(manager.Command):
