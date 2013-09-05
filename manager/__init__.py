@@ -6,7 +6,6 @@ import sys
 import re
 import os
 import inspect
-from types import NoneType
 
 from manager import cli
 
@@ -75,7 +74,7 @@ class Command(object):
             kwargs = []
         for arg_name in self.arg_names:
             type_ = type(kwargs[arg_name]) if arg_name in kwargs else None
-            if type_ == NoneType:
+            if type_ == type(None):
                 type_ = None
 
             arg = Arg(
