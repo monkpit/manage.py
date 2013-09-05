@@ -342,5 +342,34 @@ class PutsTest(unittest.TestCase):
         self.assertEqual(c.getvalue(), 'FAILED\n')
 
 
+BOOL_CHOICES = TRUE_CHOICES + FALSE_CHOICES
+
+
+class PromptTest(unittest.TestCase):
+    def test_process_value_boolean_empty(self):
+        self.assertRaises(Exception, process_value, '', type_=bool,
+            allowed=BOOL_CHOICES)
+
+    def test_process_value_boolean_true(self):
+        self.assertEqual(True, process_value('y', type_=bool,
+            allowed=BOOL_CHOICES))
+
+    def test_process_value_boolean_false(self):
+        self.assertEqual(False, process_value('no', type_=bool,
+            allowed=BOOL_CHOICES))
+
+    def test_process_value_valid_choice(self):
+        value = process_value('first', allowed=('first', 'second'))
+        self.assertEqual(value, 'first')
+
+    def test_process_value_invalid_choice(self):
+        self.assertRaises(Exception, process_value, 'third',
+            allowed=('first', 'second'))
+
+    def test_process_value_default(self):
+        value = process_value('', default='default value')
+        self.assertEqual(value, 'default value')
+
+
 if __name__ == '__main__':
     unittest.main()
