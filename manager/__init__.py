@@ -103,20 +103,22 @@ class Command(object):
         raise NotImplementedError
 
     def parse(self, args):
-        if self.capture_all:
-            args, kwargs = [args], {}
-        else:
-            parsed_args = self.parser.parse_args(args)
-            kwargs = dict(parsed_args._get_kwargs())
-            args = []
-            position = 0
-            for arg_name in self.arg_names:
-                arg = self.args[position]
-                if arg.required:
-                    args.append(getattr(parsed_args, arg_name))
-                    del kwargs[arg_name]
-                position = position + 1
         try:
+            if self.capture_all:
+                args, kwargs = [args], {}
+            else:
+                parsed_args = self.parser.parse_args(args)
+                kwargs = dict(parsed_args._get_kwargs())
+                args = []
+                position = 0
+                for arg_name in self.arg_names:
+                    arg = self.args[position]
+                    if not isinstance(arg, PromptedArg) and arg.required:
+                        args.append(getattr(parsed_args, arg_name))
+                        del kwargs[arg_name]
+                    if isinstance(arg, PromptedArg):
+                        args.append(arg.prompt())
+                    position = position + 1
             r = self(*args, **kwargs)
             failed = r is False
         except Error as e:
@@ -131,11 +133,12 @@ class Command(object):
         parser = argparse.ArgumentParser(description=self.description)
         for arg in self.args:
             flags = [arg.name]
-            if not arg.required:
-                flags = ['--%s' % arg.name]
-                if arg.shortcut is not None:
-                    flags.append('-%s' % arg.shortcut)
-            parser.add_argument(*flags, **arg.kwargs)
+            if not isinstance(arg, PromptedArg):
+                if not arg.required:
+                    flags = ['--%s' % arg.name]
+                    if arg.shortcut is not None:
+                        flags.append('-%s' % arg.shortcut)
+                parser.add_argument(*flags, **arg.kwargs)
         return parser
 
     @property
@@ -178,6 +181,17 @@ class Manager(object):
                     arg._kwargs.update(**kwargs)
                     return command
                 command.add_argument(Arg(name, shortcut, **kwargs))
+                return command
+            return wrapped(**kwargs)
+
+        return wrapper
+
+    def prompt(self, name, message=None, **kwargs):
+        def wrapper(command):
+            def wrapped(**kwargs):
+                arg, position = command.get_argument(name)
+                command.args[position] = PromptedArg(name, arg, message,
+                    **kwargs)
                 return command
             return wrapped(**kwargs)
 
@@ -346,3 +360,22 @@ class Arg(object):
             dict_['action'] = 'store_true'
             del dict_['type']
         return dict_
+
+
+class PromptedArg(Arg):
+    def __init__(self, name, arg, message=None, **kwargs):
+        self.name = name
+        self.message = message if message is not None else name
+        self._kwargs = {
+            'empty': not arg.required,
+            'type': str if arg.type is None else arg.type,
+            'default': arg.default,
+        }
+        self._kwargs.update(kwargs)
+
+    @property
+    def kwargs(self):
+        return self._kwargs
+
+    def prompt(self):
+        return cli.prompt(self.message, **self.kwargs)
