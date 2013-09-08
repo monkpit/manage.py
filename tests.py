@@ -372,15 +372,15 @@ BOOL_CHOICES = TRUE_CHOICES + FALSE_CHOICES
 
 class PromptTest(unittest.TestCase):
     def test_process_value_boolean_empty(self):
-        self.assertRaises(Exception, process_value, '', type_=bool,
+        self.assertRaises(Exception, process_value, '', type=bool,
             allowed=BOOL_CHOICES)
 
     def test_process_value_boolean_true(self):
-        self.assertEqual(True, process_value('y', type_=bool,
+        self.assertEqual(True, process_value('y', type=bool,
             allowed=BOOL_CHOICES))
 
     def test_process_value_boolean_false(self):
-        self.assertEqual(False, process_value('no', type_=bool,
+        self.assertEqual(False, process_value('no', type=bool,
             allowed=BOOL_CHOICES))
 
     def test_process_value_valid_choice(self):
@@ -423,19 +423,19 @@ class PromptTest(unittest.TestCase):
     def test_boolean_empty(self):
         name = 'Bool prompt'
         with capture(prompts=[(name, '\n')]) as c:
-            self.assertRaises(Error, prompt, name, type_=bool)
+            self.assertRaises(Error, prompt, name, type=bool)
 
     def test_boolean_yes(self):
         name = 'Bool prompt'
         with capture(prompts=[(name, 'yes')]) as c:
-            value = prompt(name, type_=bool)
+            value = prompt(name, type=bool)
 
         self.assertEqual(value, True)
 
     def test_boolean_no(self):
         name = 'Bool prompt'
         with capture(prompts=[(name, 'n')]) as c:
-            value = prompt(name, type_=bool)
+            value = prompt(name, type=bool)
 
         self.assertEqual(value, False)
 

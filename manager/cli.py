@@ -445,13 +445,13 @@ TRUE_CHOICES = ('y', 'yes')
 FALSE_CHOICES = ('n', 'no')
 
 
-def process_value(value, empty=False, type_=str, default=None, allowed=None,
+def process_value(value, empty=False, type=str, default=None, allowed=None,
         true_choices=TRUE_CHOICES, false_choices=FALSE_CHOICES):
     """Process prompted value.
 
     :param str value: The value to process.
     :param bool empty: Allow empty value.
-    :param type type_: The expected type.
+    :param type type: The expected type.
     :param mixed default: The default value.
     :param tuple allowed: The allowed values.
     :param tuple true_choices: The accpeted values for True.
@@ -460,23 +460,22 @@ def process_value(value, empty=False, type_=str, default=None, allowed=None,
     if allowed is not None and value not in allowed:
         raise Exception('Invalid input')
 
-    if type_ is bool:
+    if type is bool:
         if value in true_choices:
             return True
         if value in false_choices:
             return False
-
-    if value == '':
+    if value in ('', '\n'):
         if default is not None:
             return default
         if empty:
             return None
         raise Exception('Invalid input')
 
-    return type_(value)
+    return type(value)
 
 
-def prompt(message, empty=False, hidden=False, type_=str, default=None,
+def prompt(message, empty=False, hidden=False, type=str, default=None,
         allowed=None, true_choices=TRUE_CHOICES, false_choices=FALSE_CHOICES,
         max_attempt=3):
     """Prompt user for value.
@@ -484,7 +483,7 @@ def prompt(message, empty=False, hidden=False, type_=str, default=None,
     :param str message: The prompt message.
     :param bool empty: Allow empty value.
     :param bool hidden: Hide user input.
-    :param type type_: The expected type.
+    :param type type: The expected type.
     :param mixed default: The default value.
     :param tuple allowed: The allowed values.
     :param tuple true_choices: The accpeted values for True.
@@ -495,7 +494,7 @@ def prompt(message, empty=False, hidden=False, type_=str, default=None,
     if allowed is not None and empty:
         allowed = allowed + ('', '\n')
 
-    if type_ is bool:
+    if type is bool:
         allowed = true_choices + false_choices
 
     if allowed is not None:
@@ -517,7 +516,7 @@ def prompt(message, empty=False, hidden=False, type_=str, default=None,
             value = process_value(
                 handler(message),
                 empty=empty,
-                type_=type_,
+                type=type,
                 default=default,
                 allowed=allowed,
                 true_choices=true_choices,
