@@ -106,6 +106,7 @@ Argument definition can be overridden
 Arguments can be prompted
 
 .. code:: python
+
     @manager.prompt('password', hidden=True)
     @manager.command
     def connect(username, password):
