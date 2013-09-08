@@ -9,7 +9,7 @@ try:
 except ImportError:
     from io import StringIO  # NOQA
 
-from manager import Arg, Command, Error, Manager, puts
+from manager import Arg, Command, Error, Manager, PromptedArg, puts
 from manager.cli import process_value, prompt, TRUE_CHOICES, FALSE_CHOICES
 
 
@@ -226,6 +226,14 @@ class ManagerTest(unittest.TestCase):
         command = manager.commands['new_command']
         self.assertEqual(command.args[0].help, 'first help')
         self.assertEqual(command.args[1].help, 'second help')
+
+    def test_prompt_decorator(self):
+        @manager.prompt('password', hidden=True)
+        @manager.command
+        def connect(username, password):
+            return password
+
+        self.assertTrue(isinstance(connect.args[1], PromptedArg))
 
     def test_arg_preserve_inspected(self):
         @manager.arg('first_arg', shortcut='f')
