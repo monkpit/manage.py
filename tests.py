@@ -234,7 +234,7 @@ class ManagerTest(unittest.TestCase):
             return first_arg
 
         command = manager.commands['new_command']
-        arg = command.get_argument('first_arg')
+        arg, position = command.get_argument('first_arg')
         self.assertEqual(arg.shortcut, 'f')
         self.assertEqual(arg.kwargs['action'], 'store_true')
         self.assertEqual(arg.kwargs['default'], False)

@@ -94,7 +94,7 @@ class Command(object):
         if not self.has_argument(name):
             raise Exception('Arg %s does not exist' % name)
         position = self.arg_names.index(name)
-        return self.args[position]
+        return self.args[position], position
 
     def has_argument(self, name):
         return name in [arg.name for arg in self.args]
@@ -172,7 +172,7 @@ class Manager(object):
         def wrapper(command):
             def wrapped(**kwargs):
                 if command.has_argument(name):
-                    arg = command.get_argument(name)
+                    arg, position = command.get_argument(name)
                     if shortcut is not None:
                         arg.shortcut = shortcut
                     arg._kwargs.update(**kwargs)
