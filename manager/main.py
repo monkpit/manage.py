@@ -3,7 +3,7 @@ import os
 import imp
 import sys
 
-from clint.textui import colored, puts
+from manager import cli, puts
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
         sys.path.append(os.getcwd())
         imp.load_source('manager', os.path.join(os.getcwd(), 'manage.py'))
     except IOError:
-        return puts(colored.red('No such file manage.py'))
+        return puts(cli.red('No such file manage.py'))
 
     from manager import manager
 
