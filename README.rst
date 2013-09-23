@@ -107,7 +107,7 @@ Arguments can be prompted
 
 .. code:: python
 
-    @manager.prompt('password', hidden=True)
+    @manager.prompt('password', hidden=True, confirm=True)
     @manager.command
     def connect(username, password):
         # ...
