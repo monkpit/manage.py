@@ -163,6 +163,18 @@ available commands:
 
         self.assertNotIn(c.getvalue(), 'ERROR')
 
+    def test_inspect_boolean_false(self):
+        new_manager = Manager()
+
+        @new_manager.command
+        def new_command(arg=False):
+            return 'true' if arg else 'false'
+
+        with capture() as c:
+            new_command.parse(['--arg'])
+
+        self.assertIn('true', c.getvalue())
+
     def test_path_root(self):
         self.assertEqual(
             manager.commands['simple_command'].path,
