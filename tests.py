@@ -163,6 +163,30 @@ available commands:
 
         self.assertNotIn(c.getvalue(), 'ERROR')
 
+    def test_inspect_boolean_true(self):
+        new_manager = Manager()
+
+        @new_manager.command
+        def new_command(arg=True):
+            return 'true' if arg else 'false'
+
+        with capture() as c:
+            new_command.parse(['--no-arg'])
+
+        self.assertIn('false', c.getvalue())
+
+    def test_inspect_boolean_false(self):
+        new_manager = Manager()
+
+        @new_manager.command
+        def new_command(arg=False):
+            return 'true' if arg else 'false'
+
+        with capture() as c:
+            new_command.parse(['--arg'])
+
+        self.assertIn('true', c.getvalue())
+
     def test_path_root(self):
         self.assertEqual(
             manager.commands['simple_command'].path,
@@ -446,6 +470,20 @@ class PromptTest(unittest.TestCase):
             value = prompt(name, type=bool)
 
         self.assertEqual(value, False)
+
+    def test_confirm_match(self):
+        name, expected = 'Simple prompt', 'expected'
+        with capture(prompts=[('%s \(again\)' % name, expected),
+                (name, expected)]) as c:
+            value = prompt(name, confirm=True)
+
+        self.assertEqual(value, expected)
+
+    def test_confirm_not_match(self):
+        name, expected = 'Simple prompt', 'expected'
+        with capture(prompts=[('%s \(again\)' % name, 'wrong value'),
+                (name, expected)]) as c:
+            self.assertRaises(Error, prompt, name, confirm=True)
 
 
 if __name__ == '__main__':

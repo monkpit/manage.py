@@ -77,9 +77,16 @@ class Command(object):
             if type_ == type(None):
                 type_ = None
 
+            default = kwargs[arg_name] if arg_name in kwargs else None
+
+            flag = None
+            if type_ == bool and default is True:
+                flag = 'no-%s' % arg_name
+
             arg = Arg(
                 arg_name,
-                default=kwargs[arg_name] if arg_name in kwargs else None,
+                flag = flag,
+                default=default,
                 type=type_,
                 required=not arg_name in kwargs,
             )
@@ -132,13 +139,9 @@ class Command(object):
     def parser(self):
         parser = argparse.ArgumentParser(description=self.description)
         for arg in self.args:
-            flags = [arg.name]
             if not isinstance(arg, PromptedArg):
-                if not arg.required:
-                    flags = ['--%s' % arg.name]
-                    if arg.shortcut is not None:
-                        flags.append('-%s' % arg.shortcut)
-                parser.add_argument(*flags, **arg.kwargs)
+                parser.add_argument(*arg.flags, **arg.kwargs)
+
         return parser
 
     @property
@@ -339,8 +342,9 @@ class Arg(object):
         'type': None,
     }
 
-    def __init__(self, name, shortcut=None, **kwargs):
+    def __init__(self, name, flag=None, shortcut=None, **kwargs):
         self.name = name
+        self.flag = flag if flag is not None else name
         self.shortcut = shortcut
         self._kwargs = self.defaults.copy()
         self._kwargs.update(kwargs)
@@ -351,14 +355,29 @@ class Arg(object):
         return self._kwargs[key]
 
     @property
+    def flags(self):
+        flags = [self.flag]
+        if not self.required:
+            flags = ['--%s' % self.flag]
+            if self.shortcut is not None:
+                flags.append('-%s' % self.shortcut)
+        return flags
+
+    @property
     def kwargs(self):
         dict_ = self._kwargs.copy()
+
         if self.required:
             del dict_['required']
+        else:
+            dict_['dest'] = self.name
 
-        elif self.type == bool and self.default is False:
-            dict_['action'] = 'store_true'
-            del dict_['type']
+            if self.type == bool:
+                if self.default:
+                    dict_['action'] = 'store_false'
+                else:
+                    dict_['action'] = 'store_true'
+                del dict_['type']
         return dict_
 
 
