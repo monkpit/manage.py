@@ -471,6 +471,20 @@ class PromptTest(unittest.TestCase):
 
         self.assertEqual(value, False)
 
+    def test_confirm_match(self):
+        name, expected = 'Simple prompt', 'expected'
+        with capture(prompts=[('%s (again)' % name, expected),
+                (name, expected)]) as c:
+            value = prompt(name, confirm=True)
+
+        self.assertEqual(value, expected)
+
+    def test_confirm_not_match(self):
+        name, expected = 'Simple prompt', 'expected'
+        with capture(prompts=[('%s \(again\)' % name, 'wrong value'),
+                (name, expected)]) as c:
+            self.assertRaises(Error, prompt, name, confirm=True)
+
 
 if __name__ == '__main__':
     unittest.main()
