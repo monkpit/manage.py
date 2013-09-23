@@ -473,7 +473,7 @@ class PromptTest(unittest.TestCase):
 
     def test_confirm_match(self):
         name, expected = 'Simple prompt', 'expected'
-        with capture(prompts=[('%s (again)' % name, expected),
+        with capture(prompts=[('%s \(again\)' % name, expected),
                 (name, expected)]) as c:
             value = prompt(name, confirm=True)
 
