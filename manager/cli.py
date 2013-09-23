@@ -477,7 +477,7 @@ def process_value(value, empty=False, type=str, default=None, allowed=None,
 
 def prompt(message, empty=False, hidden=False, type=str, default=None,
         allowed=None, true_choices=TRUE_CHOICES, false_choices=FALSE_CHOICES,
-        max_attempt=3):
+        max_attempt=3, confirm=False):
     """Prompt user for value.
 
     :param str message: The prompt message.
@@ -490,7 +490,10 @@ def prompt(message, empty=False, hidden=False, type=str, default=None,
     :param tuple false_choices: The accepted values for False.
     :param int max_attempt: How many times the user is prompted back in case
         of invalid input.
+    :param bool confirm: Enforce confirmation.
     """
+    from manager import Error
+
     if allowed is not None and empty:
         allowed = allowed + ('', '\n')
 
@@ -503,8 +506,6 @@ def prompt(message, empty=False, hidden=False, type=str, default=None,
     if default is not None:
         message = "%s (default: %s) " % (message, default)
 
-    message = "%s : " % message
-
     handler = raw_input
     if hidden:
         handler = getpass.getpass
@@ -514,7 +515,7 @@ def prompt(message, empty=False, hidden=False, type=str, default=None,
     while attempt < max_attempt:
         try:
             value = process_value(
-                handler(message),
+                handler("%s : " % message),
                 empty=empty,
                 type=type,
                 default=default,
@@ -522,13 +523,23 @@ def prompt(message, empty=False, hidden=False, type=str, default=None,
                 true_choices=true_choices,
                 false_choices=false_choices,
             )
-            return value
+            break
         except:
             attempt = attempt + 1
 
-    from manager import Error
+            if attempt == max_attempt:
+                raise Error('Invalid input')
 
-    raise Error('Invalid input')
+    if confirm:
+        confirmation = prompt("%s (again)" % message, empty=empty,
+            hidden=hidden, type=type, default=default, allowed=allowed,
+            true_choices=true_choices, false_choices=false_choices,
+            max_attempt=max_attempt)
+
+        if value != confirmation:
+            raise Error('Values do not match')
+
+    return value
 
 
 class Colored(object):
