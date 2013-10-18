@@ -390,6 +390,7 @@ class PutsTest(unittest.TestCase):
         with capture() as c:
             puts({
                 'key': 'value',
+                'nonetype': None,
                 'nested': {'deep': 'value'},
             })
 
