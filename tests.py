@@ -386,6 +386,16 @@ class PutsTest(unittest.TestCase):
 
         self.assertEqual(len(c.getvalue().splitlines()), 2)
 
+    def test_dict(self):
+        with capture() as c:
+            puts({
+                'key': 'value',
+                'nonetype': None,
+                'nested': {'deep': 'value'},
+            })
+
+        self.assertEqual(len(c.getvalue().splitlines()), 3)
+
     def test_true(self):
         with capture() as c:
             puts(True)
