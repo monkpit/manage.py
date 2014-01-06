@@ -21,7 +21,7 @@ def puts(r):
         return [puts(i) for i in r]
     elif type_ == dict:
         for key in r:
-            puts(cli.blue(cli.min_width(key, 25) + r[key]))
+            puts(cli.blue(cli.min_width(key, 25) + str(r[key])))
         return
     elif type_ == Error:
         return puts(cli.red(str(r)))
