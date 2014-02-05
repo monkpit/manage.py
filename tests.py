@@ -159,7 +159,7 @@ available commands:
             return first_arg
 
         with capture() as c:
-            new_manager.commands['new_command'].parse(['--first_arg', 'test'])
+            new_manager.commands['new_command'].parse(['--first-arg', 'test'])
 
         self.assertNotIn(c.getvalue(), 'ERROR')
 
@@ -293,7 +293,7 @@ class ManagerTest(unittest.TestCase):
 
         command = manager.commands['new_command']
         with capture() as c:
-            command.parse(['first', '--second_arg', 'second value'])
+            command.parse(['first', '--second-arg', 'second value'])
 
         self.assertEqual(c.getvalue(), 'OK\n')
 
