@@ -358,7 +358,7 @@ class Arg(object):
     def flags(self):
         flags = [self.flag]
         if not self.required:
-            flags = ['--%s' % self.flag]
+            flags = ['--%s' % self.flag.replace('_', '-')]
             if self.shortcut is not None:
                 flags.append('-%s' % self.shortcut)
         return flags
