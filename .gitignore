@@ -8,3 +8,6 @@ dist
 .env
 manage.py
 
+# PyCharm files
+.idea
+
