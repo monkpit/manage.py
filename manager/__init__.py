@@ -232,12 +232,19 @@ class Manager(object):
         else:
             return register
 
-    def update_env(self):
+    def update_env(self, setdefault=True):
         path = os.path.join(os.getcwd(), '.env')
-        if os.path.isfile(path):
-            env = self.parse_env(open(path).read())
-            for key in env:
-                os.environ[key] = env[key]
+        if not os.path.isfile(path):
+            return
+
+        with open(path) as f:
+            content = f.read()
+
+        setter = os.environ.setdefault if setdefault else \
+                 os.environ.__setitem__
+
+        for key, value in self.parse_env(content):
+            setter(key, value)
 
     def parse_env(self, content):
         def strip_quotes(string):
@@ -248,7 +255,7 @@ class Manager(object):
 
         regexp = re.compile('^([A-Za-z_0-9]+)=(.*)$', re.MULTILINE)
         founds = re.findall(regexp, content)
-        return {key: strip_quotes(value) for key, value in founds}
+        return ((key, strip_quotes(value)) for key, value in founds)
 
     @property
     def parser(self):
