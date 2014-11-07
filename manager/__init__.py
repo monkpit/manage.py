@@ -45,9 +45,9 @@ class Command(object):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             else:
-                raise Exception('Invalid keyword argument `%s`' % key)
-
-        self.args = []
+                raise Exception('Invalid keyword argument `{key}`'.format(key=key))
+        self.arg_names = list()
+        self.args = list()
 
         if self.name is None:
             self.name = re.sub(
@@ -71,35 +71,31 @@ class Command(object):
                 *[reversed(l) for l in (self.arg_names, defaults)]
             ))
         else:
-            kwargs = []
+            kwargs = {}
         for arg_name in self.arg_names:
-            type_ = type(kwargs[arg_name]) if arg_name in kwargs else None
+            type_ = type(kwargs.get(arg_name))
             if type_ == type(None):
                 type_ = None
-
-            default = kwargs[arg_name] if arg_name in kwargs else None
-
+            default = kwargs.get(arg_name)
             flag = None
             if type_ == bool and default is True:
-                flag = 'no-%s' % arg_name
-
-            arg = Arg(
-                arg_name,
-                flag = flag,
-                default=default,
-                type=type_,
-                required=not arg_name in kwargs,
-            )
+                flag = 'no-{arg_name}'.format(arg_name=arg_name)
+            arg = Arg(arg_name, flag=flag, default=default, type=type_,
+                      required=not arg_name in kwargs)
             self.add_argument(arg)
 
     def add_argument(self, arg):
+        """ Adds the ```arg``` to the list of command's arguments
+
+            @type arg: Arg
+        """
         if self.has_argument(arg.name):
-            raise Exception('Arg %s already exists' % arg.name)
+            raise Exception('Arg {name} already exists'.format(arg.name))
         self.args.append(arg)
 
     def get_argument(self, name):
         if not self.has_argument(name):
-            raise Exception('Arg %s does not exist' % name)
+            raise Exception('Arg {} does not exist'.format(name))
         position = self.arg_names.index(name)
         return self.args[position], position
 
@@ -125,7 +121,7 @@ class Command(object):
                         del kwargs[arg_name]
                     if isinstance(arg, PromptedArg):
                         args.append(arg.prompt())
-                    position = position + 1
+                    position += 1
             r = self(*args, **kwargs)
             failed = r is False
         except Error as e:
@@ -141,13 +137,14 @@ class Command(object):
         for arg in self.args:
             if not isinstance(arg, PromptedArg):
                 parser.add_argument(*arg.flags, **arg.kwargs)
-
         return parser
 
     @property
     def path(self):
-        return self.name if self.namespace is None else '%s.%s' % \
-            (self.namespace, self.name)
+        if self.namespace:
+            return '.'.join([self.namespace, self.name])
+        else:
+            return self.name
 
 
 class Manager(object):
@@ -174,7 +171,8 @@ class Manager(object):
     def add_command(self, command):
         self.commands[command.path] = command
 
-    def arg(self, name, shortcut=None, **kwargs):
+    @staticmethod
+    def arg(name, shortcut=None, positional=True, **kwargs):
         def wrapper(command):
             def wrapped(**kwargs):
                 if command.has_argument(name):
@@ -208,6 +206,15 @@ class Manager(object):
             self.add_command(command)
 
     def command(self, *args, **kwargs):
+        """ Decorator for command methods
+
+            Unless overridden by the ```name``` argument, it will use the
+            method's name as the command's name.
+
+            The command's help string will be taken from the optional
+            ```description``` named argument.
+
+        """
         def register(fn):
             def wrapped(**kwargs):
                 if not 'name' in kwargs:
@@ -225,12 +232,19 @@ class Manager(object):
         else:
             return register
 
-    def update_env(self):
+    def update_env(self, setdefault=True):
         path = os.path.join(os.getcwd(), '.env')
-        if os.path.isfile(path):
-            env = self.parse_env(open(path).read())
-            for key in env:
-                os.environ[key] = env[key]
+        if not os.path.isfile(path):
+            return
+
+        with open(path) as f:
+            content = f.read()
+
+        setter = os.environ.setdefault if setdefault else \
+                 os.environ.__setitem__
+
+        for key, value in self.parse_env(content):
+            setter(key, value)
 
     def parse_env(self, content):
         def strip_quotes(string):
@@ -241,7 +255,7 @@ class Manager(object):
 
         regexp = re.compile('^([A-Za-z_0-9]+)=(.*)$', re.MULTILINE)
         founds = re.findall(regexp, content)
-        return {key: strip_quotes(value) for key, value in founds}
+        return ((key, strip_quotes(value)) for key, value in founds)
 
     @property
     def parser(self):

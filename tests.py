@@ -330,21 +330,21 @@ class ManagerTest(unittest.TestCase):
 
     def test_parse_env_simple(self):
         env = "key=value"
-        self.assertEqual(manager.parse_env(env), dict(key='value'))
+        self.assertEqual(dict(manager.parse_env(env)), dict(key='value'))
 
     def test_parse_env_quote(self):
         env = "key='value'"
-        self.assertEqual(manager.parse_env(env), dict(key='value'))
+        self.assertEqual(dict(manager.parse_env(env)), dict(key='value'))
 
     def test_parse_env_double_quote(self):
         env = 'key="value"'
-        self.assertEqual(manager.parse_env(env), dict(key='value'))
+        self.assertEqual(dict(manager.parse_env(env)), dict(key='value'))
 
     def test_parse_env_multiline(self):
         env = """key="value"
 another_key=another value"""
         self.assertEqual(
-            manager.parse_env(env), dict(
+            dict(manager.parse_env(env)), dict(
                 key='value',
                 another_key='another value'
             )

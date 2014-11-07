@@ -93,6 +93,40 @@ Commands can be organized within namespaces
 Arguments
 ---------
 
+Currently the framework will assume that arguments with default values are
+key-value arguments (``--arg value``) while required arguments are positional
+ones.
+
+In other words, this definition:
+
+.. code:: python
+
+    @manager.command
+    def create(user):
+        pass
+
+will expect an invocation of the kind::
+
+    $ manage create foobar
+
+and ``user`` in ``create()`` will take the value ``'foobar'``.
+
+On the other hand, this:
+
+.. code:: python
+
+    @manager.command
+    def create(user=''):
+        pass
+
+will expect an invocation of the kind::
+
+    $ manage create --user foobar
+
+
+The downside is obviously that it's not currently possible to have a required
+non-positional argument.
+
 Argument definition can be overridden
 
 .. code:: python
