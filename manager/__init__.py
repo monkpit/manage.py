@@ -240,10 +240,15 @@ class Manager(object):
         with open(path) as f:
             content = f.read()
 
-        setter = os.environ.setdefault if setdefault else \
-                 os.environ.__setitem__
+        items = list(self.parse_env(content))
 
-        for key, value in self.parse_env(content):
+        if setdefault:
+            setter = os.environ.setdefault
+            items = reversed(items)
+        else:
+            setter = os.environ.__setitem__
+
+        for key, value in items:
             setter(key, value)
 
     def parse_env(self, content):
