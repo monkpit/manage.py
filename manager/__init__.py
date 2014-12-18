@@ -94,13 +94,18 @@ class Command(object):
         self.args.append(arg)
 
     def get_argument(self, name):
-        if not self.has_argument(name):
+        position = self.get_position(name)
+        if position is None:
             raise Exception('Arg {} does not exist'.format(name))
-        position = self.arg_names.index(name)
         return self.args[position], position
 
+    def get_position(self, name):
+        for i, arg in enumerate(self.args):
+            if name == arg.name:
+                return i
+
     def has_argument(self, name):
-        return name in [arg.name for arg in self.args]
+        return name in (arg.name for arg in self.args)
 
     def run(self, *args, **kwargs):
         raise NotImplementedError
