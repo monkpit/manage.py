@@ -370,7 +370,7 @@ class Arg(object):
 
     def __getattr__(self, key):
         if not key in self._kwargs:
-            raise AttributeError
+            raise AttributeError(key)
         return self._kwargs[key]
 
     @property
