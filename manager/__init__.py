@@ -67,21 +67,21 @@ class Command(object):
         if hasattr(self.run, 'im_self') or hasattr(self.run, '__self__'):
             del self.arg_names[0]  # Removes `self` arg for class method
         if defaults is not None:
-            kwargs = dict(zip(
+            self.kwargs = dict(zip(
                 *[reversed(l) for l in (self.arg_names, defaults)]
             ))
         else:
-            kwargs = {}
+            self.kwargs = {}
         for arg_name in self.arg_names:
-            type_ = type(kwargs.get(arg_name))
+            type_ = type(self.kwargs.get(arg_name))
             if type_ == type(None):
                 type_ = None
-            default = kwargs.get(arg_name)
+            default = self.kwargs.get(arg_name)
             flag = None
             if type_ == bool and default is True:
                 flag = 'no-{arg_name}'.format(arg_name=arg_name)
             arg = Arg(arg_name, flag=flag, default=default, type=type_,
-                      required=not arg_name in kwargs)
+                      required=not arg_name in self.kwargs)
             self.add_argument(arg)
 
     def add_argument(self, arg):
@@ -184,9 +184,19 @@ class Manager(object):
                     arg, position = command.get_argument(name)
                     if shortcut is not None:
                         arg.shortcut = shortcut
+                    if name in command.kwargs:
+                        kwargs['default'] = command.kwargs[name]
+                        kwargs['required'] = False
                     arg._kwargs.update(**kwargs)
                     return command
-                command.add_argument(Arg(name, shortcut, **kwargs))
+                try:
+                    command.add_argument(Arg(name, shortcut, **kwargs))
+                except ValueError as exc:
+                    raise ValueError(
+                        "%s while adding argument to command %s:%s" % (
+                            exc, command.run.__module__, command.name
+                        )
+                    )
                 return command
             return wrapped(**kwargs)
 
@@ -367,6 +377,10 @@ class Arg(object):
         self.shortcut = shortcut
         self._kwargs = self.defaults.copy()
         self._kwargs.update(kwargs)
+        if self.type == bool and 'default' not in kwargs:
+            raise ValueError(
+                "No default value provided for boolean argument '%s'" % name
+            )
 
     def __getattr__(self, key):
         if not key in self._kwargs:
@@ -389,14 +403,15 @@ class Arg(object):
         if self.required:
             del dict_['required']
         else:
-            dict_['dest'] = self.name
+            dict_.setdefault('dest', self.name)
 
             if self.type == bool:
                 if self.default:
                     dict_['action'] = 'store_false'
                 else:
                     dict_['action'] = 'store_true'
-                del dict_['type']
+
+        dict_.pop('type', None)
         return dict_
 
 
