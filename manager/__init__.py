@@ -416,7 +416,7 @@ class Arg(object):
                 else:
                     dict_['action'] = 'store_true'
 
-        dict_.pop('type', None)
+                dict_.pop('type', None)
         return dict_
 
 
