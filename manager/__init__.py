@@ -190,7 +190,7 @@ class Manager(object):
                     arg._kwargs.update(**kwargs)
                     return command
                 try:
-                    command.add_argument(Arg(name, shortcut, **kwargs))
+                    command.add_argument(Arg(name, shortcut=shortcut, **kwargs))
                 except ValueError as exc:
                     raise ValueError(
                         "%s while adding argument to command %s:%s" % (
