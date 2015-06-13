@@ -398,7 +398,7 @@ class Arg(object):
         if not self.required:
             flags = ['--%s' % self.flag.replace('_', '-')]
             if self.shortcut is not None:
-                flags.append('-%s' % self.shortcut)
+                flags.insert(0, '-%s' % self.shortcut)
         return flags
 
     @property
