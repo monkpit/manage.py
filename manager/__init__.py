@@ -377,6 +377,9 @@ class Arg(object):
     }
 
     def __init__(self, name, flag=None, shortcut=None, **kwargs):
+        if kwargs.get('default') and kwargs.get('help'):
+            kwargs['help'] = '%s (default: %s)' % (kwargs['help'], kwargs['default'])
+
         self.name = name
         self.flag = flag if flag is not None else name
         self.shortcut = shortcut
