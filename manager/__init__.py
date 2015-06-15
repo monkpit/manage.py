@@ -138,7 +138,12 @@ class Command(object):
 
     @property
     def parser(self):
-        parser = argparse.ArgumentParser(description=self.description)
+        if self.namespace:
+            prog = '%s %s.%s' % (sys.argv[0], self.namespace, self.name)
+        else:
+            prog = '%s %s' % (sys.argv[0], self.name)
+
+        parser = argparse.ArgumentParser(prog=prog, description=self.description)
         for arg in self.args:
             if not isinstance(arg, PromptedArg):
                 parser.add_argument(*arg.flags, **arg.kwargs)
