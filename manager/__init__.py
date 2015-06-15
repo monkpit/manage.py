@@ -284,8 +284,12 @@ class Manager(object):
 
     @property
     def parser(self):
-        parser = argparse.ArgumentParser(
-            usage='%(prog)s [<namespace>.]<command> [<args>]')
+        if any([c.namespace for c in self.commands.values()]):
+            usage='%(prog)s [<namespace>.]<command> [<args>]'
+        else:
+            usage='%(prog)s <command> [<args>]'
+
+        parser = argparse.ArgumentParser(usage=usage)
         parser.add_argument('command', help='the command to run')
         return parser
 
