@@ -24,9 +24,9 @@ Quickstart
     manager = Manager()
 
     @manager.command
-    def echo(text, capitalyze=False):
+    def echo(text, capitalize=False):
         """print the given <name>"""
-        if capitalyze:
+        if capitalize:
             text = text.upper()
         return text
 
@@ -51,7 +51,7 @@ Quickstart
 
     $ manage echo --help
 
-    usage: manage [-h] [--capitalyze] text
+    usage: manage [-h] [--capitalize] text
 
     print the given <name>
 
@@ -60,7 +60,7 @@ Quickstart
 
     optional arguments:
       -h, --help    show this help message and exit
-      --capitalyze  no description
+      --capitalize  no description
 
 
 Managers
